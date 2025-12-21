@@ -1,26 +1,701 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0 0 0);
+  --card: oklch(0.97 0 0);
+  --card-foreground: oklch(0 0 0);
+  --popover: oklch(0.97 0 0);
+  --popover-foreground: oklch(0 0 0);
+  --primary: oklch(0.55 0.22 274);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.92 0.08 255);
+  --secondary-foreground: oklch(0 0 0);
+  --muted: oklch(0.94 0.02 0);
+  --muted-foreground: oklch(0.3 0 0);
+  --accent: oklch(0.60 0.22 262);
+  --accent-foreground: oklch(0.99 0 0);
+  --destructive: oklch(0.58 0.22 27);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.88 0.02 0);
+  --input: oklch(0.95 0.02 0);
+  --ring: oklch(0.55 0.22 274);
+  --chart-1: oklch(0.55 0.22 274);
+  --chart-2: oklch(0.60 0.22 262);
+  --chart-3: oklch(0.45 0.15 255);
+  --chart-4: oklch(0.65 0.2 200);
+  --chart-5: oklch(0.70 0.18 150);
+  --radius: 0.5rem;
+  --sidebar: oklch(0.96 0.01 0);
+  --sidebar-foreground: oklch(0 0 0);
+  --sidebar-primary: oklch(0.55 0.22 274);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.90 0.02 0);
+  --sidebar-accent-foreground: oklch(0 0 0);
+  --sidebar-border: oklch(0.88 0.02 0);
+  --sidebar-ring: oklch(0.55 0.22 274);
+}
+
+.dark {
+  --background: oklch(0.05 0 0);
+  --foreground: oklch(0.95 0 0);
+  --card: oklch(0.08 0 0);
+  --card-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.08 0 0);
+  --popover-foreground: oklch(0.95 0 0);
+  --primary: oklch(0.65 0.25 274);
+  --primary-foreground: oklch(0.05 0 0);
+  --secondary: oklch(0.55 0.18 255);
+  --secondary-foreground: oklch(0.05 0 0);
+  --muted: oklch(0.25 0 0);
+  --muted-foreground: oklch(0.6 0 0);
+  --accent: oklch(0.7 0.25 262);
+  --accent-foreground: oklch(0.05 0 0);
+  --destructive: oklch(0.65 0.25 27);
+  --destructive-foreground: oklch(0.95 0 0);
+  --border: oklch(0.2 0 0);
+  --input: oklch(0.15 0 0);
+  --ring: oklch(0.65 0.25 274);
+  --chart-1: oklch(0.65 0.25 274);
+  --chart-2: oklch(0.7 0.25 262);
+  --chart-3: oklch(0.55 0.18 255);
+  --chart-4: oklch(0.75 0.22 200);
+  --chart-5: oklch(0.8 0.2 150);
+  --sidebar: oklch(0.06 0 0);
+  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar-primary: oklch(0.65 0.25 274);
+  --sidebar-primary-foreground: oklch(0.05 0 0);
+  --sidebar-accent: oklch(0.2 0 0);
+  --sidebar-accent-foreground: oklch(0.95 0 0);
+  --sidebar-border: oklch(0.2 0 0);
+  --sidebar-ring: oklch(0.65 0.25 274);
 }
 
 @theme inline {
+  --font-sans: "Geist", "Geist Fallback";
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Glass effect utilities */
+.glass {
+  @apply bg-card/30 backdrop-blur-lg border border-border;
+}
+
+.glass-strong {
+  @apply bg-card/40 backdrop-blur-xl border border-border;
+}
+
+.glass-light {
+  @apply bg-card/20 backdrop-blur-md border border-border;
+}
+
+/* Apple Glass Effect */
+.apple-glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.dark .apple-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  @apply transition-all duration-200 ease-out;
+}
+
+/* PDF Export Styles - PDF-safe colors and layout */
+.pdf-export {
+  /* Override all theme colors with PDF-safe RGB values */
+  --pdf-dark-text: rgb(15, 23, 42);
+  --pdf-muted-text: rgb(100, 116, 139);
+  --pdf-primary: rgb(37, 99, 235);
+  --pdf-borders: rgb(203, 213, 225);
+  --pdf-background: rgb(255, 255, 255);
+  --pdf-card-bg: rgb(248, 250, 252);
+  --pdf-accent: rgb(241, 245, 249);
+
+  /* Completely isolate from global CSS variables */
+  --background: rgb(255, 255, 255) !important;
+  --foreground: rgb(15, 23, 42) !important;
+  --card: rgb(248, 250, 252) !important;
+  --card-foreground: rgb(15, 23, 42) !important;
+  --popover: rgb(255, 255, 255) !important;
+  --popover-foreground: rgb(15, 23, 42) !important;
+  --primary: rgb(37, 99, 235) !important;
+  --primary-foreground: rgb(255, 255, 255) !important;
+  --secondary: rgb(241, 245, 249) !important;
+  --secondary-foreground: rgb(15, 23, 42) !important;
+  --muted: rgb(248, 250, 252) !important;
+  --muted-foreground: rgb(100, 116, 139) !important;
+  --accent: rgb(241, 245, 249) !important;
+  --accent-foreground: rgb(15, 23, 42) !important;
+  --destructive: rgb(220, 38, 38) !important;
+  --destructive-foreground: rgb(255, 255, 255) !important;
+  --border: rgb(203, 213, 225) !important;
+  --input: rgb(255, 255, 255) !important;
+  --ring: rgb(37, 99, 235) !important;
+
+  /* Force white background */
+  background-color: rgb(255, 255, 255) !important;
+  color: rgb(15, 23, 42) !important;
+
+  /* Remove gradients and use flat colors */
+  background-image: none !important;
+
+  /* PDF-friendly layout */
+  max-width: 210mm; /* A4 width */
+  margin: 0 auto;
+  padding: 20mm;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  box-sizing: border-box;
+
+  /* Ensure isolation from parent styles */
+  all: initial;
+  display: block !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: 0 !important;
+  width: 210mm !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* PDF Export Typography */
+.pdf-export * {
+  color: var(--pdf-dark-text) !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border-color: var(--pdf-borders) !important;
+}
+
+.pdf-export h1,
+.pdf-export h2,
+.pdf-export h3,
+.pdf-export h4,
+.pdf-export h5,
+.pdf-export h6 {
+  color: var(--pdf-dark-text) !important;
+  font-weight: 600 !important;
+  margin: 0 0 1rem 0 !important;
+  line-height: 1.2 !important;
+}
+
+.pdf-export h1 {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.pdf-export h2 {
+  font-size: 1.5rem !important;
+  border-bottom: 2px solid var(--pdf-primary) !important;
+  padding-bottom: 0.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.pdf-export h3 {
+  font-size: 1.25rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.pdf-export p {
+  margin: 0 0 1rem 0 !important;
+  color: var(--pdf-dark-text) !important;
+}
+
+.pdf-export .text-muted-foreground,
+.pdf-export .text-muted,
+.pdf-export [class*="text-muted"] {
+  color: var(--pdf-muted-text) !important;
+}
+
+.pdf-export .font-bold,
+.pdf-export [class*="font-bold"] {
+  font-weight: 700 !important;
+  color: var(--pdf-dark-text) !important;
+}
+
+.pdf-export .font-semibold,
+.pdf-export [class*="font-semibold"] {
+  font-weight: 600 !important;
+  color: var(--pdf-dark-text) !important;
+}
+
+/* PDF Export Layout */
+.pdf-export .pdf-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--pdf-borders);
+}
+
+.pdf-export .pdf-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.pdf-export .pdf-kpi-card {
+  background-color: var(--pdf-card-bg) !important;
+  border: 1px solid var(--pdf-borders) !important;
+  border-radius: 8px !important;
+  padding: 1rem !important;
+  text-align: center !important;
+}
+
+.pdf-export .pdf-kpi-value {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: var(--pdf-primary) !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.pdf-export .pdf-kpi-label {
+  font-size: 0.875rem !important;
+  color: var(--pdf-muted-text) !important;
+  font-weight: 500 !important;
+}
+
+.pdf-export .pdf-section {
+  margin-bottom: 2rem;
+}
+
+.pdf-export .pdf-section:not(:last-child) {
+  border-bottom: 1px solid var(--pdf-borders);
+  padding-bottom: 2rem;
+}
+
+.pdf-export .pdf-chart-container {
+  background-color: var(--pdf-card-bg) !important;
+  border: 1px solid var(--pdf-borders) !important;
+  border-radius: 8px !important;
+  padding: 1rem !important;
+  margin-bottom: 1rem;
+}
+
+.pdf-export .pdf-chart-title {
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.5rem !important;
+  color: var(--pdf-dark-text) !important;
+}
+
+.pdf-export .pdf-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.pdf-export .pdf-summary-card {
+  background-color: var(--pdf-card-bg) !important;
+  border: 1px solid var(--pdf-borders) !important;
+  border-radius: 8px !important;
+  padding: 1rem !important;
+}
+
+.pdf-export .pdf-summary-title {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.5rem !important;
+  color: var(--pdf-dark-text) !important;
+}
+
+.pdf-export .pdf-summary-value {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  color: var(--pdf-primary) !important;
+}
+
+.pdf-export .pdf-footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--pdf-borders);
+  color: var(--pdf-muted-text) !important;
+  font-size: 0.875rem !important;
+}
+
+/* Hide animations and transitions in PDF */
+.pdf-export *,
+.pdf-export *::before,
+.pdf-export *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Ensure charts are static */
+.pdf-export .recharts-wrapper {
+  background-color: var(--pdf-background) !important;
+}
+
+.pdf-export .recharts-cartesian-axis-line,
+.pdf-export .recharts-cartesian-axis-tick-line {
+  stroke: var(--pdf-borders) !important;
+}
+
+.pdf-export .recharts-cartesian-axis-tick-value {
+  fill: var(--pdf-dark-text) !important;
+  font-size: 12px !important;
+}
+
+.pdf-export .recharts-line path,
+.pdf-export .recharts-bar path,
+.pdf-export .recharts-area path {
+  stroke: var(--pdf-primary) !important;
+  fill: var(--pdf-primary) !important;
+  fill-opacity: 0.1 !important;
+}
+
+/* Hide tooltips during PDF export */
+.pdf-export .recharts-tooltip-wrapper {
+  display: none !important;
+}
+
+/* Print Styles for Professional PDF Reports */
+@media print {
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 25mm 20mm 30mm 20mm; /* Top, Right, Bottom, Left */
+  }
+
+  /* Hide elements not needed in print */
+  nav,
+  .navbar,
+  .sidebar,
+  .mobile-menu,
+  .export-button,
+  button,
+  .btn,
+  .dropdown,
+  .modal,
+  .tooltip,
+  .animation,
+  .hover-effects,
+  * [class*="hover:"],
+  * [class*="animate-"],
+  * [class*="transition-"] {
+    display: none !important;
+  }
+
+  /* Force black text on white background */
+  body {
+    background: white !important;
+    color: black !important;
+    font-family: 'Times New Roman', serif !important;
+    font-size: 12pt !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Ensure all text is readable */
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Typography adjustments for print */
+  h1, h2, h3, h4, h5, h6 {
+    color: black !important;
+    font-weight: bold !important;
+    page-break-after: avoid !important;
+  }
+
+  h1 {
+    font-size: 24pt !important;
+    text-align: center !important;
+    margin-bottom: 20pt !important;
+  }
+
+  h2 {
+    font-size: 18pt !important;
+    border-bottom: 2pt solid #2563eb !important;
+    padding-bottom: 6pt !important;
+    margin-bottom: 12pt !important;
+    page-break-after: avoid !important;
+  }
+
+  h3 {
+    font-size: 14pt !important;
+    margin-bottom: 8pt !important;
+    page-break-after: avoid !important;
+  }
+
+  p {
+    orphans: 3;
+    widows: 3;
+    margin-bottom: 8pt !important;
+  }
+
+  /* Layout adjustments */
+  .container,
+  .max-w-7xl,
+  .max-w-4xl {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Card styling for print */
+  .card,
+  .glass,
+  .apple-glass,
+  [class*="glass"] {
+    background: white !important;
+    border: 1pt solid #e5e7eb !important;
+    box-shadow: none !important;
+    margin-bottom: 12pt !important;
+    page-break-inside: avoid !important;
+  }
+
+  .card-content,
+  .card-body {
+    padding: 8pt !important;
+  }
+
+  /* Grid layouts - ensure they don't break awkwardly */
+  .grid {
+    display: block !important;
+    page-break-inside: avoid !important;
+  }
+
+  .grid > * {
+    display: block !important;
+    margin-bottom: 8pt !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Charts and visualizations */
+  .recharts-wrapper {
+    page-break-inside: avoid !important;
+    background: white !important;
+    margin-bottom: 12pt !important;
+  }
+
+  .recharts-cartesian-axis-line,
+  .recharts-cartesian-axis-tick-line {
+    stroke: #6b7280 !important;
+  }
+
+  .recharts-cartesian-axis-tick-value {
+    fill: #111827 !important;
+    font-size: 10pt !important;
+  }
+
+  .recharts-line path,
+  .recharts-bar path,
+  .recharts-area path {
+    stroke: #2563eb !important;
+  }
+
+  .recharts-area path {
+    fill: #dbeafe !important;
+    fill-opacity: 0.3 !important;
+  }
+
+  /* Table styling */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 12pt !important;
+    page-break-inside: avoid !important;
+  }
+
+  th, td {
+    border: 1pt solid #e5e7eb !important;
+    padding: 4pt 6pt !important;
+    text-align: left !important;
+  }
+
+  th {
+    background: #f9fafb !important;
+    font-weight: bold !important;
+  }
+
+  /* Badge styling */
+  .badge,
+  [class*="badge"] {
+    background: #e5e7eb !important;
+    color: #374151 !important;
+    border: none !important;
+    display: inline-block !important;
+    padding: 2pt 4pt !important;
+    font-size: 9pt !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Metric cards */
+  [class*="kpi"],
+  [class*="metric"] {
+    page-break-inside: avoid !important;
+    background: #f9fafb !important;
+    border: 1pt solid #e5e7eb !important;
+    padding: 8pt !important;
+    margin-bottom: 8pt !important;
+  }
+
+  /* Page breaks */
+  .page-break-before {
+    page-break-before: always !important;
+  }
+
+  .page-break-after {
+    page-break-after: always !important;
+  }
+
+  .page-break-inside-avoid {
+    page-break-inside: avoid !important;
+  }
+
+  /* Cover page specific styles */
+  .print-page-cover {
+    page-break-after: always !important;
+    text-align: center !important;
+    background: white !important;
+  }
+
+  .print-page-cover h1 {
+    font-size: 28pt !important;
+    margin-bottom: 12pt !important;
+  }
+
+  .print-page-cover h2 {
+    font-size: 20pt !important;
+    margin-bottom: 16pt !important;
+  }
+
+  /* Footer spacing */
+  .print-footer {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 20pt !important;
+    font-size: 9pt !important;
+    color: #6b7280 !important;
+    text-align: center !important;
+    border-top: 1pt solid #e5e7eb !important;
+    padding-top: 4pt !important;
+  }
+
+  /* Section spacing */
+  .section-spacing {
+    margin-bottom: 16pt !important;
+  }
+
+  /* Ensure proper spacing between sections */
+  .space-y-8 > * + * {
+    margin-top: 16pt !important;
+  }
+
+  .space-y-6 > * + * {
+    margin-top: 12pt !important;
+  }
+
+  .space-y-4 > * + * {
+    margin-top: 8pt !important;
+  }
+
+  /* Hide scrollbars */
+  * {
+    overflow: visible !important;
+  }
+
+  /* Remove any transform or positioning that might affect print */
+  [style*="transform"],
+  [style*="position"] {
+    transform: none !important;
+    position: static !important;
+  }
+
+  /* Ensure images and charts print properly */
+  img,
+  svg,
+  canvas {
+    max-width: 100% !important;
+    height: auto !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Links should not be colored in print */
+  a {
+    color: black !important;
+    text-decoration: none !important;
+  }
+
+  /* Form elements should not appear */
+  input,
+  select,
+  textarea,
+  form {
+    display: none !important;
+  }
 }
