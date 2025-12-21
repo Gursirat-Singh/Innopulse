@@ -1,36 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Innopulse
 
-## Getting Started
+**Innopulse** is a modern, responsive **Next.js** web application that showcases professional frontend development using React and the App Router architecture. The project is designed to demonstrate clean code practices, scalability, and real-world application structure, making it suitable for portfolio and placement purposes.
 
-First, run the development server:
+---
+
+## 🚀 Features
+
+* Built with **Next.js** for fast rendering and optimized performance
+* Component-based architecture using **React**
+* Clean and scalable project structure
+* Responsive UI for desktop and mobile devices
+* SEO-friendly routing and layouts
+* Easy to extend with backend APIs and authentication
+
+---
+
+## 🧠 Tech Stack
+
+| Technology             | Purpose                                     |
+| ---------------------- | ------------------------------------------- |
+| **Next.js**            | React framework with server-side rendering  |
+| **React**              | UI library for building reusable components |
+| **JavaScript (ES6+)**  | Core programming language                   |
+| **CSS / Tailwind CSS** | Styling and responsive design               |
+| **Git & GitHub**       | Version control and collaboration           |
+
+---
+
+## 📦 Getting Started
+
+Follow the steps below to run the project locally:
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Gursirat-Singh/Innopulse.git
+```
+
+### 2. Navigate into the project directory
+
+```bash
+cd Innopulse
+```
+
+### 3. Install dependencies
+
+```bash
+npm install
+# or
+yarn
+```
+
+### 4. Run the development server
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open your browser and visit:
+👉 [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📁 Project Structure
 
-## Learn More
+```
+Innopulse/
+├── app/                # App Router pages and layouts
+├── components/         # Reusable UI components
+├── public/             # Static assets
+├── styles/             # Global styles
+├── .gitignore          # Git ignored files
+├── next.config.js      # Next.js configuration
+├── package.json        # Dependencies and scripts
+└── README.md           # Project documentation
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠 Available Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Script          | Description                      |
+| --------------- | -------------------------------- |
+| `npm run dev`   | Runs the app in development mode |
+| `npm run build` | Builds the app for production    |
+| `npm start`     | Starts the production server     |
+| `npm run lint`  | Runs ESLint checks               |
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 💡 Why This Project Matters
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Innopulse demonstrates:
+
+* Practical use of **Next.js App Router**
+* Clean and maintainable code structure
+* Real-world frontend development workflow
+* GitHub-based version control and collaboration
+
+This makes the project suitable as a **portfolio showcase** and for **technical interviews**.
+
+---
+
+## 📌 Future Improvements
+
+* Backend integration (REST / GraphQL APIs)
+* Authentication and role-based access
+* Dashboard analytics and data visualization
+* Unit and integration testing
+* Deployment on **Vercel**
+
+---
+
+## 📜 License
+
+This project is open-source and available under the **MIT License**.
+
+---
+
+✨ **Built with ❤️ by Gursirat Singh**
