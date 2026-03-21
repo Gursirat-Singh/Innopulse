@@ -1,8 +1,9 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { motion , type Variants } from "framer-motion"
+import Link from "next/link";
+import { motion, type Variants } from "framer-motion";
 import { Button } from "@/components/ui/button"
+import Logo from "@/components/logo";
 import {
   ArrowRight,
   BarChart3,
@@ -14,8 +15,12 @@ import {
   LineChart,
   PieChart,
   Sparkles,
-} from "lucide-react"
-import Navbar from "@/components/navbar"
+  Github,
+  Twitter,
+  Linkedin,
+  ExternalLink,
+} from "lucide-react";
+import Navbar from "@/components/navbar";
 
 function FloatingShape({
   className,
@@ -25,12 +30,12 @@ function FloatingShape({
   rotate = 0,
   gradient = "from-indigo-500/[0.15]",
 }: {
-  className?: string
-  delay?: number
-  width?: number
-  height?: number
-  rotate?: number
-  gradient?: string
+  className?: string;
+  delay?: number;
+  width?: number;
+  height?: number;
+  rotate?: number;
+  gradient?: string;
 }) {
   return (
     <motion.div
@@ -59,7 +64,7 @@ function FloatingShape({
         />
       </motion.div>
     </motion.div>
-  )
+  );
 }
 
 function GridPattern() {
@@ -73,7 +78,7 @@ function GridPattern() {
         }}
       />
     </div>
-  )
+  );
 }
 
 const fadeUpVariants: Variants = {
@@ -87,7 +92,7 @@ const fadeUpVariants: Variants = {
       ease: [0.25, 0.4, 0.25, 1],
     },
   }),
-}
+};
 
 const staggerContainer: Variants = {
   hidden: { opacity: 0 },
@@ -98,7 +103,7 @@ const staggerContainer: Variants = {
       delayChildren: 0.3,
     },
   },
-}
+};
 
 const cardVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -107,13 +112,19 @@ const cardVariants: Variants = {
     y: 0,
     transition: { duration: 0.5, ease: "easeOut" },
   },
-}
+};
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-background overflow-hidden" suppressHydrationWarning>
+    <main
+      className="min-h-screen bg-background overflow-hidden"
+      suppressHydrationWarning
+    >
       <Navbar />
-      <div className="fixed inset-0 pointer-events-none" suppressHydrationWarning>
+      <div
+        className="fixed inset-0 pointer-events-none"
+        suppressHydrationWarning
+      >
         <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-transparent to-accent/[0.08] animate-gradient" />
         <GridPattern />
 
@@ -161,7 +172,7 @@ export default function HomePage() {
       </div>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-44 md:pb-32 min-h-screen flex items-center">
+      <section className="relative pt-36 pb-20 md:pt-48 md:pb-32 min-h-screen flex items-center">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <motion.div
@@ -169,10 +180,12 @@ export default function HomePage() {
               variants={fadeUpVariants}
               initial="hidden"
               animate="visible"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass gradient-border mb-10"
             >
               <Sparkles className="w-4 h-4 text-accent" />
-              <span className="text-sm font-medium text-foreground/80">Now tracking 50,000+ startups</span>
+              <span className="text-sm font-medium text-foreground/80">
+                Now tracking 50,000+ startups
+              </span>
               <ArrowRight className="w-4 h-4 text-accent" />
             </motion.div>
 
@@ -181,13 +194,13 @@ export default function HomePage() {
               variants={fadeUpVariants}
               initial="hidden"
               animate="visible"
-              className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight"
+              className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95]"
             >
               <span className="bg-clip-text text-transparent bg-gradient-to-b from-foreground to-foreground/70">
-                India's Startup
+                India&apos;s Startup
               </span>
               <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-chart-3">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-chart-3 text-shimmer">
                 Intelligence Platform
               </span>
             </motion.h1>
@@ -199,8 +212,8 @@ export default function HomePage() {
               animate="visible"
               className="mt-8 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
             >
-              Track startup growth, funding trends, employment impact, and policy effectiveness across India — all in
-              one unified dashboard.
+              Track startup growth, funding trends, employment impact, and
+              policy effectiveness across India — all in one unified dashboard.
             </motion.p>
 
             <motion.div
@@ -210,25 +223,38 @@ export default function HomePage() {
               animate="visible"
               className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
             >
-              <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.98 }}>
+              <motion.div
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+              >
                 <Link href="/dashboard">
                   <Button
                     size="lg"
-                    className="rounded-full px-8 h-14 text-base bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity border-0 glow-primary"
+                    className="rounded-full px-8 h-14 text-base bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all border-0 glow-primary shadow-2xl shadow-primary/20"
                   >
                     Explore Dashboard
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </Link>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.98 }}>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="rounded-full px-8 h-14 text-base glass border-white/10 hover:bg-white/5 text-foreground bg-transparent"
+              <motion.div
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <a
+                  href="https://youtu.be/a0GkgCabh2w"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  View Demo
-                </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="rounded-full px-8 h-14 text-base glass border-white/10 hover:bg-white/5 text-foreground bg-transparent"
+                  >
+                    View Demo
+                    <ExternalLink className="w-4 h-4 ml-2 opacity-50" />
+                  </Button>
+                </a>
               </motion.div>
             </motion.div>
           </div>
@@ -243,7 +269,11 @@ export default function HomePage() {
         >
           <motion.div
             animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+            transition={{
+              duration: 1.5,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "easeInOut",
+            }}
             className="w-6 h-10 rounded-full border border-white/20 flex items-start justify-center p-2"
           >
             <motion.div className="w-1.5 h-1.5 rounded-full bg-accent" />
@@ -252,7 +282,7 @@ export default function HomePage() {
       </section>
 
       {/* Stats Section */}
-      <section className="relative py-20 border-y border-white/5">
+      <section className="relative py-24 border-y border-white/5">
         <div className="absolute inset-0 glass" />
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <motion.div
@@ -260,24 +290,60 @@ export default function HomePage() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4"
+            className="grid grid-cols-2 md:grid-cols-4 gap-6"
           >
             {[
-              { value: "50,000+", label: "Startups Tracked", sublabel: "Across India" },
-              { value: "₹2.5L Cr", label: "Funding Analyzed", sublabel: "Since 2015" },
-              { value: "28", label: "States Covered", sublabel: "Full coverage" },
-              { value: "150+", label: "Policy Reports", sublabel: "Generated" },
+              {
+                value: "50,000+",
+                label: "Startups Tracked",
+                sublabel: "Across India",
+                color: "from-primary/30",
+              },
+              {
+                value: "₹2.5L Cr",
+                label: "Funding Analyzed",
+                sublabel: "Since 2015",
+                color: "from-accent/30",
+              },
+              {
+                value: "28",
+                label: "States Covered",
+                sublabel: "Full coverage",
+                color: "from-chart-3/30",
+              },
+              {
+                value: "150+",
+                label: "Policy Reports",
+                sublabel: "Generated",
+                color: "from-chart-4/30",
+              },
             ].map((stat, i) => (
-              <motion.div key={i} variants={cardVariants} className="text-center group">
+              <motion.div
+                key={i}
+                variants={cardVariants}
+                className="relative group"
+              >
                 <motion.div
-                  className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70"
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.03, y: -4 }}
                   transition={{ type: "spring", stiffness: 300 }}
+                  className="text-center p-6 rounded-2xl glass hover:bg-white/[0.04] transition-all duration-500"
                 >
-                  {stat.value}
+                  {/* Accent border top */}
+                  <div className={`absolute top-0 left-[15%] right-[15%] h-[2px] bg-gradient-to-r ${stat.color} to-transparent rounded-full`} />
+                  <motion.div
+                    className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    {stat.value}
+                  </motion.div>
+                  <div className="mt-3 text-sm font-medium text-foreground">
+                    {stat.label}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {stat.sublabel}
+                  </div>
                 </motion.div>
-                <div className="mt-2 text-sm font-medium text-foreground">{stat.label}</div>
-                <div className="text-sm text-muted-foreground">{stat.sublabel}</div>
               </motion.div>
             ))}
           </motion.div>
@@ -285,20 +351,28 @@ export default function HomePage() {
       </section>
 
       {/* Features Grid */}
-      <section id="features" className="relative py-24 md:py-32">
+      <section id="features" className="relative py-28 md:py-36">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            className="text-center mb-20"
           >
+            <motion.span
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-block text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-4"
+            >
+              Platform Features
+            </motion.span>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground text-balance">
               Everything you need to understand
               <br className="hidden md:block" />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-                India's innovation economy
+              <span className="text-gradient">
+                {" "}India&apos;s innovation economy
               </span>
             </h2>
             <p className="mt-6 text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -320,6 +394,7 @@ export default function HomePage() {
                 description:
                   "Monitor startups across sectors, cities, and growth stages with structured, comparable data.",
                 gradient: "from-primary to-primary/50",
+                num: "01",
               },
               {
                 icon: TrendingUp,
@@ -327,12 +402,15 @@ export default function HomePage() {
                 description:
                   "Analyze funding rounds, investor activity, and capital flows over time with real-time updates.",
                 gradient: "from-accent to-accent/50",
+                num: "02",
               },
               {
                 icon: Target,
                 title: "Policy Impact Analysis",
-                description: "Understand how government policies affect startup formation, employment, and scale.",
+                description:
+                  "Understand how government policies affect startup formation, employment, and scale.",
                 gradient: "from-chart-3 to-chart-3/50",
+                num: "03",
               },
             ].map((feature, i) => (
               <motion.div
@@ -340,15 +418,25 @@ export default function HomePage() {
                 variants={cardVariants}
                 whileHover={{ y: -8, scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}
-                className="group relative p-8 rounded-2xl glass hover:bg-white/[0.05] transition-all duration-500 cursor-pointer overflow-hidden"
+                className="group relative p-8 pt-10 rounded-2xl glass hover:bg-white/[0.05] transition-all duration-500 cursor-pointer overflow-hidden"
               >
+                {/* Gradient top border */}
+                <div
+                  className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r ${feature.gradient} opacity-60 group-hover:opacity-100 transition-opacity duration-500`}
+                />
+
                 {/* Hover glow effect */}
                 <div
                   className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-2xl`}
                 />
 
+                {/* Number indicator */}
+                <span className="absolute top-6 right-6 text-xs font-mono font-bold text-muted-foreground/30 group-hover:text-primary/40 transition-colors duration-300">
+                  {feature.num}
+                </span>
+
                 <div
-                  className={`relative w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}
+                  className={`relative w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
                 >
                   <feature.icon className="w-7 h-7 text-white" />
                 </div>
@@ -374,7 +462,7 @@ export default function HomePage() {
       </section>
 
       {/* Insights Section */}
-      <section id="insights" className="relative py-24 md:py-32">
+      <section id="insights" className="relative py-28 md:py-36">
         <div className="absolute inset-0 glass" />
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -384,22 +472,39 @@ export default function HomePage() {
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
             >
+              <motion.span
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="inline-block text-xs font-semibold uppercase tracking-[0.2em] text-accent mb-4"
+              >
+                Why InnoPulse
+              </motion.span>
               <h2 className="text-3xl md:text-5xl font-bold text-foreground text-balance">
                 Data that drives
                 <br />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+                <span className="text-gradient">
                   strategic decisions
                 </span>
               </h2>
               <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-                India's startup ecosystem is vast, fragmented, and fast-moving. InnoPulse turns scattered information
-                into actionable insights for strategic decision-making.
+                India&apos;s startup ecosystem is vast, fragmented, and fast-moving.
+                InnoPulse turns scattered information into actionable insights
+                for strategic decision-making.
               </p>
 
               <div className="mt-10 space-y-5">
                 {[
-                  { icon: BarChart3, text: "Evidence-based policymaking", color: "from-primary to-primary/50" },
-                  { icon: LineChart, text: "Investor-ready market insights", color: "from-accent to-accent/50" },
+                  {
+                    icon: BarChart3,
+                    text: "Evidence-based policymaking",
+                    color: "from-primary to-primary/50",
+                  },
+                  {
+                    icon: LineChart,
+                    text: "Investor-ready market insights",
+                    color: "from-accent to-accent/50",
+                  },
                   {
                     icon: PieChart,
                     text: "Founder benchmarking and trend analysis",
@@ -416,7 +521,7 @@ export default function HomePage() {
                     className="flex items-center gap-4 group cursor-pointer"
                   >
                     <div
-                      className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}
+                      className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg`}
                     >
                       <item.icon className="w-5 h-5 text-white" />
                     </div>
@@ -427,10 +532,14 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }} className="inline-block mt-10">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                className="inline-block mt-10"
+              >
                 <Link href="/dashboard/analytics">
                   <Button
-                    className="rounded-full px-8 h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity border-0"
+                    className="rounded-full px-8 h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity border-0 shadow-xl shadow-primary/15"
                     size="lg"
                   >
                     Learn More
@@ -457,28 +566,40 @@ export default function HomePage() {
                   <div className="w-3 h-3 rounded-full bg-red-500/70" />
                   <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
                   <div className="w-3 h-3 rounded-full bg-green-500/70" />
-                  <span className="ml-4 text-sm text-muted-foreground">Dashboard Preview</span>
+                  <span className="ml-4 text-sm text-muted-foreground font-medium">
+                    Dashboard Preview
+                  </span>
                 </div>
 
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-foreground">Funding Trends Q4 2024</span>
-                    <span className="text-sm text-accent font-semibold">+23% YoY</span>
+                    <span className="text-sm font-medium text-foreground">
+                      Funding Trends Q4 2024
+                    </span>
+                    <span className="text-sm text-accent font-semibold">
+                      +23% YoY
+                    </span>
                   </div>
 
                   {/* Animated Chart Bars */}
                   <div className="flex items-end gap-2 h-40">
-                    {[40, 65, 45, 80, 55, 90, 70, 85, 60, 95, 75, 88].map((height, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ height: 0 }}
-                        whileInView={{ height: `${height}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: i * 0.05, ease: "easeOut" }}
-                        whileHover={{ scaleY: 1.1 }}
-                        className="flex-1 bg-gradient-to-t from-primary/40 to-accent/60 rounded-t-md cursor-pointer hover:from-primary/60 hover:to-accent/80 transition-colors duration-300"
-                      />
-                    ))}
+                    {[40, 65, 45, 80, 55, 90, 70, 85, 60, 95, 75, 88].map(
+                      (height, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ height: 0 }}
+                          whileInView={{ height: `${height}%` }}
+                          viewport={{ once: true }}
+                          transition={{
+                            duration: 0.8,
+                            delay: i * 0.05,
+                            ease: "easeOut",
+                          }}
+                          whileHover={{ scaleY: 1.1 }}
+                          className="flex-1 bg-gradient-to-t from-primary/40 to-accent/60 rounded-t-md cursor-pointer hover:from-primary/60 hover:to-accent/80 transition-colors duration-300"
+                        />
+                      )
+                    )}
                   </div>
 
                   <div className="grid grid-cols-3 gap-6 pt-6 border-t border-white/10">
@@ -487,9 +608,17 @@ export default function HomePage() {
                       { value: "342", label: "Deals Closed" },
                       { value: "18", label: "New Unicorns" },
                     ].map((stat, i) => (
-                      <motion.div key={i} whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }}>
-                        <div className="text-2xl font-bold text-foreground">{stat.value}</div>
-                        <div className="text-xs text-muted-foreground">{stat.label}</div>
+                      <motion.div
+                        key={i}
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        <div className="text-2xl font-bold text-foreground">
+                          {stat.value}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {stat.label}
+                        </div>
                       </motion.div>
                     ))}
                   </div>
@@ -510,8 +639,12 @@ export default function HomePage() {
                     <Users className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <div className="text-lg font-bold text-foreground">2.5M+ Jobs</div>
-                    <div className="text-sm text-muted-foreground">Created by startups</div>
+                    <div className="text-lg font-bold text-foreground">
+                      2.5M+ Jobs
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Created by startups
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -521,7 +654,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative py-24 md:py-32">
+      <section id="about" className="relative py-28 md:py-36">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -537,7 +670,11 @@ export default function HomePage() {
                   x: [0, 100, 0],
                   y: [0, -50, 0],
                 }}
-                transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+                transition={{
+                  duration: 20,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: "easeInOut",
+                }}
                 className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-primary/20 to-transparent blur-3xl translate-x-1/2 -translate-y-1/2"
               />
               <motion.div
@@ -545,20 +682,42 @@ export default function HomePage() {
                   x: [0, -80, 0],
                   y: [0, 60, 0],
                 }}
-                transition={{ duration: 25, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+                transition={{
+                  duration: 25,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: "easeInOut",
+                }}
                 className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-accent/20 to-transparent blur-3xl -translate-x-1/2 translate-y-1/2"
+              />
+              {/* Dot pattern overlay */}
+              <div
+                className="absolute inset-0 opacity-[0.04]"
+                style={{
+                  backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)`,
+                  backgroundSize: "24px 24px",
+                }}
               />
             </div>
 
             <div className="relative z-10">
+              <motion.span
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="inline-block text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-6"
+              >
+                Get Started Today
+              </motion.span>
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                className="text-3xl md:text-5xl font-bold text-foreground text-balance"
+                className="text-4xl md:text-6xl font-bold text-foreground text-balance"
               >
-                Explore India's Innovation Landscape
+                Explore India&apos;s Innovation
+                <br className="hidden md:block" />
+                <span className="text-gradient"> Landscape</span>
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
@@ -567,7 +726,8 @@ export default function HomePage() {
                 transition={{ delay: 0.3 }}
                 className="mt-6 text-muted-foreground text-lg max-w-xl mx-auto"
               >
-                Start exploring data-driven insights into India's startup economy today.
+                Start exploring data-driven insights into India&apos;s startup
+                economy today.
               </motion.p>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -576,28 +736,34 @@ export default function HomePage() {
                 transition={{ delay: 0.4 }}
                 className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
               >
-                <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.98 }}>
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                >
                   <Link href="/dashboard">
                     <Button
                       size="lg"
-                      className="rounded-full px-10 h-14 text-base bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity border-0 glow-primary"
+                      className="rounded-full px-10 h-14 text-base bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity border-0 glow-primary shadow-2xl shadow-primary/20"
                     >
                       Enter Dashboard
                       <ArrowRight className="w-5 h-5 ml-2" />
                     </Button>
                   </Link>
                 </motion.div>
-              <motion.div whileHover={{ scale: 1.05, y: -2 }} whileTap={{ scale: 0.98 }}>
-                <Link href="/dashboard/startups">
-                  <Button
-                    size="lg"
-                    className="rounded-full px-10 h-14 text-base bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white border-0 glow-blue"
-                  >
-                    Browse Startups
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                </Link>
-              </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Link href="/dashboard/startups">
+                    <Button
+                      size="lg"
+                      className="rounded-full px-10 h-14 text-base glass border-white/10 hover:bg-white/5 text-foreground bg-transparent"
+                    >
+                      Browse Startups
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </Link>
+                </motion.div>
               </motion.div>
             </div>
           </motion.div>
@@ -605,46 +771,126 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative py-16 border-t border-white/5">
+      <footer className="relative py-20 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <motion.div
-              className="flex items-center gap-2"
-              whileHover={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
+          {/* Footer Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-10 md:gap-8 mb-16">
+            {/* Brand */}
+            <div className="col-span-2 md:col-span-2">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 400 }}
+              >
+                <Logo size="lg" className="mb-5" />
+              </motion.div>
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
+                India&apos;s most comprehensive startup intelligence platform.
+                Empowering strategic decisions with data-driven insights.
+              </p>
+              {/* Social Links */}
+              <div className="flex items-center gap-3 mt-6">
+                {[
+                  { icon: Github, href: "#", label: "GitHub" },
+                  { icon: Twitter, href: "#", label: "Twitter" },
+                  { icon: Linkedin, href: "#", label: "LinkedIn" },
+                ].map((social, i) => (
+                  <a
+                    key={i}
+                    href={social.href}
+                    aria-label={social.label}
+                    className="w-9 h-9 rounded-lg glass flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-300"
+                  >
+                    <social.icon className="w-4 h-4" />
+                  </a>
+                ))}
               </div>
-              <span className="font-semibold text-foreground text-lg">InnoPulse India</span>
-            </motion.div>
-            <div className="flex items-center gap-8">
-              <Link
-                href="/terms#privacy"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors relative group"
-              >
-                Privacy
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent group-hover:w-full transition-all duration-300" />
-              </Link>
-              <Link
-                href="/terms#terms"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors relative group"
-              >
-                Terms
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent group-hover:w-full transition-all duration-300" />
-              </Link>
-              <Link
-                href="/terms#contact"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors relative group"
-              >
-                Contact
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent group-hover:w-full transition-all duration-300" />
-              </Link>
             </div>
-            <p className="text-sm text-muted-foreground">© 2025 InnoPulse India. All rights reserved.</p>
+
+            {/* Platform */}
+            <div>
+              <h4 className="text-sm font-semibold text-foreground mb-4 uppercase tracking-wider">
+                Platform
+              </h4>
+              <ul className="space-y-3">
+                {[
+                  { label: "Dashboard", href: "/dashboard" },
+                  { label: "Analytics", href: "/dashboard/analytics" },
+                  { label: "Startups", href: "/dashboard/startups" },
+                  { label: "Sectors", href: "/dashboard/sectors" },
+                ].map((link, i) => (
+                  <li key={i}>
+                    <Link
+                      href={link.href}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Company */}
+            <div>
+              <h4 className="text-sm font-semibold text-foreground mb-4 uppercase tracking-wider">
+                Company
+              </h4>
+              <ul className="space-y-3">
+                {[
+                  { label: "About", href: "#about" },
+                  { label: "Terms", href: "/terms#terms" },
+                  { label: "Privacy", href: "/terms#privacy" },
+                  { label: "Contact", href: "/terms#contact" },
+                ].map((link, i) => (
+                  <li key={i}>
+                    <Link
+                      href={link.href}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Resources */}
+            <div>
+              <h4 className="text-sm font-semibold text-foreground mb-4 uppercase tracking-wider">
+                Resources
+              </h4>
+              <ul className="space-y-3">
+                {[
+                  { label: "Initiatives", href: "/dashboard/initiatives" },
+                  { label: "Policy Reports", href: "/dashboard/analytics" },
+                  { label: "Data Insights", href: "/dashboard" },
+                ].map((link, i) => (
+                  <li key={i}>
+                    <Link
+                      href={link.href}
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="pt-8 border-t border-white/5">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <p className="text-sm text-muted-foreground">
+                © 2025 InnoPulse India. All rights reserved.
+              </p>
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                Built with <span className="text-red-400 mx-1">♥</span> for India&apos;s startup ecosystem
+              </div>
+            </div>
           </div>
         </div>
       </footer>
     </main>
-  )
+  );
 }

@@ -16,11 +16,15 @@ import {
   Moon,
   ArrowLeft,
   LayoutDashboard,
-  Home
+  Home,
+  BarChart3,
+  TrendingUp,
+  Building2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import Logo from "@/components/logo"
 import { useTheme } from "@/lib/theme-context"
 import { useAuth } from "@/lib/auth-context"
 import CaptchaComponent from "@/components/CaptchaComponent"
@@ -72,12 +76,61 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative overflow-hidden">
+    <div className="min-h-screen bg-background relative overflow-hidden flex">
       {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full blur-3xl opacity-30" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-500/20 to-purple-500/20 rounded-full blur-3xl opacity-30" />
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-indigo-500/10 to-pink-500/10 rounded-full blur-3xl opacity-20" />
+        <div
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)`,
+            backgroundSize: "32px 32px",
+          }}
+        />
+      </div>
+
+      {/* Decorative Left Panel — desktop only */}
+      <div className="hidden lg:flex flex-1 relative items-center justify-center">
+        <div className="relative z-10 max-w-md px-12">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            <Logo size="lg" className="mb-8" />
+            <h2 className="text-3xl font-bold text-foreground mb-4">
+              India&apos;s Startup
+              <span className="text-gradient"> Intelligence</span>
+            </h2>
+            <p className="text-muted-foreground leading-relaxed mb-10">
+              Track startup growth, funding trends, and policy effectiveness across India — powered by data.
+            </p>
+            <div className="space-y-4">
+              {[
+                { icon: BarChart3, text: "Real-time analytics dashboard" },
+                { icon: TrendingUp, text: "Funding intelligence & trends" },
+                { icon: Building2, text: "50,000+ startups tracked" },
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + i * 0.1 }}
+                  className="flex items-center gap-3"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <item.icon className="w-4 h-4 text-primary" />
+                  </div>
+                  <span className="text-sm text-foreground/80">{item.text}</span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+        {/* Decorative gradient line */}
+        <div className="absolute right-0 top-[10%] bottom-[10%] w-[1px] bg-gradient-to-b from-transparent via-primary/20 to-transparent" />
       </div>
 
       {/* Back to Home/Dashboard Button */}
@@ -85,14 +138,14 @@ export default function LoginPage() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.7, duration: 0.3 }}
-        className="fixed top-6 left-6 z-20"
+        className="fixed top-6 left-6 z-20 lg:hidden"
       >
         <Link href={isLoggedIn ? "/dashboard" : "/"}>
-          <button className="w-12 h-12 bg-background/80 backdrop-blur-xl border border-border/50 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group">
+          <button className="w-11 h-11 bg-background/80 backdrop-blur-xl border border-border/50 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group">
             {isLoggedIn ? (
-              <LayoutDashboard className="w-5 h-5 text-foreground group-hover:text-primary transition-colors" />
+              <LayoutDashboard className="w-[18px] h-[18px] text-foreground group-hover:text-primary transition-colors" />
             ) : (
-              <Home className="w-5 h-5 text-foreground group-hover:text-primary transition-colors" />
+              <Home className="w-[18px] h-[18px] text-foreground group-hover:text-primary transition-colors" />
             )}
           </button>
         </Link>
@@ -107,7 +160,7 @@ export default function LoginPage() {
       >
         <button
           onClick={toggleTheme}
-          className="w-12 h-12 bg-background/80 backdrop-blur-xl border border-border/50 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+          className="w-11 h-11 bg-background/80 backdrop-blur-xl border border-border/50 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
         >
           <motion.div
             initial={false}
@@ -115,15 +168,16 @@ export default function LoginPage() {
             transition={{ duration: 0.3 }}
           >
             {theme === 'light' ? (
-              <Moon className="w-5 h-5 text-foreground group-hover:text-primary transition-colors" />
+              <Moon className="w-[18px] h-[18px] text-foreground group-hover:text-primary transition-colors" />
             ) : (
-              <Sun className="w-5 h-5 text-foreground group-hover:text-primary transition-colors" />
+              <Sun className="w-[18px] h-[18px] text-foreground group-hover:text-primary transition-colors" />
             )}
           </motion.div>
         </button>
       </motion.div>
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-12">
+      {/* Right Side — Form */}
+      <div className="relative z-10 flex-1 flex items-center justify-center px-4 py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -137,15 +191,15 @@ export default function LoginPage() {
             transition={{ delay: 0.1, duration: 0.5 }}
             className="text-center mb-8"
           >
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center shadow-2xl shadow-primary/25">
-                <Zap className="w-8 h-8 text-primary-foreground" />
+            <div className="flex justify-center mb-6 lg:hidden">
+              <div className="w-14 h-14 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center shadow-2xl shadow-primary/25">
+                <Zap className="w-7 h-7 text-primary-foreground" />
               </div>
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
               Welcome Back
             </h1>
-            <p className="mt-3 text-muted-foreground text-lg">
+            <p className="mt-3 text-muted-foreground">
               Sign in to your InnoPulse account
             </p>
           </motion.div>
@@ -178,7 +232,7 @@ export default function LoginPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-12 pl-4 pr-4 bg-background/50 border-border/50 focus:border-primary focus:ring-primary/20 transition-all duration-300 placeholder:text-muted-foreground/70"
+                    className="h-12 pl-4 pr-4 bg-background/50 border-border/50 focus:border-primary focus:ring-primary/20 transition-all duration-300 placeholder:text-muted-foreground/70 rounded-xl"
                     placeholder="Enter your email address"
                     disabled={isLoading}
                   />
@@ -205,7 +259,7 @@ export default function LoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="h-12 pl-4 pr-12 bg-background/50 border-border/50 focus:border-primary focus:ring-primary/20 transition-all duration-300 placeholder:text-muted-foreground/70"
+                    className="h-12 pl-4 pr-12 bg-background/50 border-border/50 focus:border-primary focus:ring-primary/20 transition-all duration-300 placeholder:text-muted-foreground/70 rounded-xl"
                     placeholder="Enter your password"
                     disabled={isLoading}
                   />
@@ -271,7 +325,7 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   disabled={isLoading || !email || !password}
-                  className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
+                  className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
                 >
                   {isLoading ? (
                     <div className="flex items-center gap-2">
@@ -296,7 +350,7 @@ export default function LoginPage() {
               className="mt-8 text-center"
             >
               <p className="text-muted-foreground">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Link
                   href="/register"
                   className="text-primary hover:text-primary/80 font-semibold transition-colors"

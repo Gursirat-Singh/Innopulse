@@ -16,21 +16,24 @@ export default function CaptchaComponent({ onCaptchaChange, error }: CaptchaComp
   const [captchaSvg, setCaptchaSvg] = useState("")
   const [captchaAnswer, setCaptchaAnswer] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [fetchError, setFetchError] = useState("")
 
   const loadCaptcha = async () => {
     setIsLoading(true)
+    setFetchError("")
     try {
       const response = await fetch("http://localhost:5000/api/auth/captcha")
-      const data = await response.json()
-
-      if (response.ok) {
-        setCaptchaId(data.captchaId)
-        setCaptchaSvg(data.captchaSvg)
-        setCaptchaAnswer("")
-        onCaptchaChange(data.captchaId, "")
+      if (!response.ok) {
+        throw new Error("Failed to fetch CAPTCHA")
       }
+      const data = await response.json()
+      setCaptchaId(data.captchaId)
+      setCaptchaSvg(data.captchaSvg)
+      setCaptchaAnswer("")
+      onCaptchaChange(data.captchaId, "")
     } catch (err) {
-      console.error("Failed to load CAPTCHA:", err)
+      // Set an internal error state instead of console.error to avoid the Next.js dev error overlay
+      setFetchError("Could not connect to the authentication server. Please ensure the backend is running.")
     } finally {
       setIsLoading(false)
     }
@@ -64,11 +67,13 @@ export default function CaptchaComponent({ onCaptchaChange, error }: CaptchaComp
               dangerouslySetInnerHTML={{ __html: captchaSvg }}
             />
           ) : (
-            <div className="flex items-center justify-center h-16 bg-muted/50 rounded-lg">
+            <div className="flex items-center justify-center h-16 bg-muted/50 rounded-lg p-2 text-center">
               {isLoading ? (
                 <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
               ) : (
-                <span className="text-muted-foreground">Loading CAPTCHA...</span>
+                <span className={`text-xs ${fetchError ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  {fetchError || "Loading CAPTCHA..."}
+                </span>
               )}
             </div>
           )}

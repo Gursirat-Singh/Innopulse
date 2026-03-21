@@ -51,6 +51,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import Logo from "@/components/logo"
 import { getStartupById } from "@/lib/services/startup.services"
 
 interface Startup {
@@ -311,58 +312,67 @@ export default function StartupDetailsPage() {
     <div className={`min-h-screen ${isPdfMode ? 'bg-white text-black print-mode' : 'bg-gradient-to-br from-background via-background to-muted/20'}`}>
       {/* Cover Page - Only shown in PDF mode */}
       {isPdfMode && (
-        <div className="page-break-after print-page-cover min-h-screen flex flex-col justify-center items-center text-center px-8 py-16">
-          <div className="max-w-2xl mx-auto space-y-8">
-            {/* Logo/Brand */}
-            <div className="space-y-4">
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full mx-auto flex items-center justify-center">
-                <Building2 className="w-12 h-12 text-white" />
+        <div className="page-break-after print-page-cover min-h-screen flex flex-col justify-center px-12 py-16 relative bg-white">
+          {/* Professional Document Accent Line */}
+          <div className="absolute top-0 left-0 w-full h-3 bg-blue-600" />
+          
+          <div className="max-w-4xl w-full mx-auto text-left relative z-10">
+            {/* Header / Brand */}
+            <div className="flex items-center gap-5 border-b border-gray-200 pb-10">
+              <Logo size="xl" showText={false} className="shadow-md text-blue-600" />
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 tracking-tight">InnoPulse India</h1>
+                <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest mt-1">Startup Intelligence Report</p>
               </div>
-              <h1 className="text-4xl font-bold text-gray-900">Innopulse</h1>
-              <p className="text-lg text-gray-600">India's Startup Ecosystem Platform</p>
             </div>
 
-            {/* Report Title */}
-            <div className="space-y-4">
-              <h2 className="text-3xl font-bold text-gray-900 border-b-2 border-blue-600 pb-2">
-                Startup Analytics Report
-              </h2>
-              <h3 className="text-2xl font-semibold text-gray-800">
+            {/* Document Title Area */}
+            <div className="py-24 space-y-6">
+              <p className="text-blue-600 font-bold tracking-widest uppercase text-sm flex items-center gap-2">
+                <span className="w-8 h-[2px] bg-blue-600"></span>
+                Comprehensive Analytics
+              </p>
+              <h2 className="text-6xl font-black text-gray-900 tracking-tight leading-[1.1]">
                 {startup.name}
-              </h3>
-              <div className="flex items-center justify-center gap-4 text-gray-600">
-                <span className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  {startup.city}
-                </span>
-                <span>•</span>
-                <span>{startup.sector}</span>
-                <span>•</span>
-                <Badge className={`${getStageColor(startup.stage)} border text-sm px-3 py-1`}>
-                  {startup.stage}
-                </Badge>
+              </h2>
+              <p className="text-xl text-gray-600 max-w-2xl leading-relaxed mt-4">
+                Detailed strategic analysis of funding, growth metrics, market positioning, and ecosystem impact.
+              </p>
+            </div>
+
+            {/* Key Metadata Grid */}
+            <div className="grid grid-cols-2 gap-10 pt-10 border-t border-gray-200">
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Sector Classification</p>
+                <p className="text-xl font-bold text-gray-900">{startup.sector}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Company Stage</p>
+                <p className="text-xl font-bold text-gray-900">{startup.stage}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Headquarters</p>
+                <div className="flex items-center gap-2 text-xl font-bold text-gray-900">
+                  <MapPin className="w-5 h-5 text-gray-400" />
+                  {startup.city}, India
+                </div>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Total Capital Raised</p>
+                <p className="text-xl font-bold text-green-700">{formatCurrency(startup.funding)}</p>
               </div>
             </div>
 
-            {/* Key Metrics Summary */}
-            <div className="grid grid-cols-3 gap-6 mt-12">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{formatCurrency(startup.funding)}</div>
-                <div className="text-sm text-gray-600">Total Funding</div>
+            {/* Report Generation Info Footer */}
+            <div className="mt-24 lg:mt-32 flex justify-between items-end border-t border-gray-200 pt-8">
+              <div>
+                <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">Prepared By</p>
+                <p className="text-sm font-bold text-gray-900">InnoPulse Data Platform</p>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{startup.employees}</div>
-                <div className="text-sm text-gray-600">Team Members</div>
+              <div className="text-right">
+                <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">Report Generation Date</p>
+                <p className="text-sm font-bold text-gray-900">{reportDate}</p>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">{formatDate(startup.createdAt).split(',')[0]}</div>
-                <div className="text-sm text-gray-600">Founded</div>
-              </div>
-            </div>
-
-            {/* Report Generation Date */}
-            <div className="mt-16 pt-8 border-t border-gray-300">
-              <p className="text-sm text-gray-500">Report Generated on {reportDate}</p>
             </div>
           </div>
         </div>
@@ -426,7 +436,7 @@ export default function StartupDetailsPage() {
               </h2>
             </div>
 
-            <Card className={`apple-glass border-0 shadow-xl ${isPdfMode ? 'page-break-inside-avoid bg-white border border-gray-200' : ''}`}>
+            <Card className={`apple-glass border-0 shadow-xl ${isPdfMode ? 'page-break-inside-avoid bg-white shadow-none rounded-none border-t-2 border-gray-900 pt-6' : ''}`}>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Key Metrics */}
@@ -499,7 +509,7 @@ export default function StartupDetailsPage() {
               <p className={`text-muted-foreground ${isPdfMode ? 'text-gray-600' : ''}`}>Performance metrics and growth trends over time</p>
             </div>
 
-            <Card className={`apple-glass border-0 shadow-xl ${isPdfMode ? 'page-break-inside-avoid bg-white border border-gray-200' : ''}`}>
+            <Card className={`apple-glass border-0 shadow-xl ${isPdfMode ? 'page-break-inside-avoid bg-white shadow-none rounded-none border-t-2 border-gray-900 pt-6' : ''}`}>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                   {/* Revenue Growth Chart */}
@@ -508,7 +518,7 @@ export default function StartupDetailsPage() {
                       <LineChart className="w-5 h-5 text-green-600" />
                       Revenue Growth
                     </h4>
-                    <div className={isPdfMode ? "h-80 w-full bg-white border border-gray-200 rounded-lg p-4" : "h-64"}>
+                    <div className={isPdfMode ? "h-80 w-full bg-gray-50/50 rounded-lg p-6" : "h-64"}>
                       <ResponsiveContainer width="100%" height="100%">
                         <RechartsLineChart data={growthData?.revenueData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke={isPdfMode ? "#e5e7eb" : "#3b82f6"} opacity={0.3} />
@@ -559,7 +569,7 @@ export default function StartupDetailsPage() {
                       <Users className="w-5 h-5 text-blue-600" />
                       User Base Growth
                     </h4>
-                    <div className={isPdfMode ? "h-80 w-full bg-white border border-gray-200 rounded-lg p-4" : "h-64"}>
+                    <div className={isPdfMode ? "h-80 w-full bg-gray-50/50 rounded-lg p-6" : "h-64"}>
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={growthData?.userData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke={isPdfMode ? "#e5e7eb" : "#3b82f6"} opacity={0.3} />
@@ -623,7 +633,7 @@ export default function StartupDetailsPage() {
                       <Users className="w-5 h-5 text-purple-600" />
                       Team Growth
                     </h4>
-                    <div className={isPdfMode ? "h-80 w-full bg-white border border-gray-200 rounded-lg p-4" : "h-64"}>
+                    <div className={isPdfMode ? "h-80 w-full bg-gray-50/50 rounded-lg p-6" : "h-64"}>
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={growthData?.teamData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke={isPdfMode ? "#e5e7eb" : "#3b82f6"} opacity={0.3} />
@@ -678,7 +688,7 @@ export default function StartupDetailsPage() {
                       <DollarSign className="w-5 h-5 text-orange-600" />
                       Funding Rounds
                     </h4>
-                    <div className={isPdfMode ? "h-80 w-full bg-white border border-gray-200 rounded-lg p-4" : "h-64"}>
+                    <div className={isPdfMode ? "h-80 w-full bg-gray-50/50 rounded-lg p-6" : "h-64"}>
                       <ResponsiveContainer width="100%" height="100%">
                         <ComposedChart data={growthData?.fundingRounds} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke={isPdfMode ? "#e5e7eb" : "#3b82f6"} opacity={0.3} />

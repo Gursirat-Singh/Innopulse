@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo } from "react"
 import { useTheme } from "@/lib/theme-context"
+import Logo from "@/components/logo"
 
 export default function DashboardLayout({
   children,
@@ -65,6 +66,11 @@ export default function DashboardLayout({
     return null
   }
 
+  // If in PDF export mode, render just the content without the dashboard shell sidebar/nav
+  if (isPdfMode) {
+    return <>{children}</>
+  }
+
   return (
     <div className="min-h-screen bg-background flex">
       <div className="fixed inset-0 pointer-events-none">
@@ -87,11 +93,8 @@ export default function DashboardLayout({
         <div className="flex h-full flex-col glass-strong">
           {/* Logo */}
           <div className="flex h-16 items-center justify-between px-6 border-b border-border">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center shadow-lg">
-                <Zap className="w-4 h-4 text-primary-foreground" />
-              </div>
-              <span className="font-bold text-foreground text-base">InnoPulse</span>
+            <Link href="/" className="flex items-center">
+              <Logo size="md" />
             </Link>
             <Button variant="ghost" size="sm" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
               <X className="w-4 h-4" />
@@ -160,12 +163,7 @@ export default function DashboardLayout({
           <Button variant="ghost" size="sm" onClick={() => setSidebarOpen(true)}>
             <Menu className="w-5 h-5" />
           </Button>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-gradient-to-br from-primary to-accent rounded-md flex items-center justify-center">
-              <Zap className="w-3 h-3 text-primary-foreground" />
-            </div>
-            <span className="font-semibold text-foreground text-sm">InnoPulse</span>
-          </div>
+          <Logo size="sm" />
         </div>
 
         <main className="relative z-10 p-4 sm:p-6 lg:p-8 flex-1">{children}</main>

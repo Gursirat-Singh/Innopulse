@@ -4,7 +4,6 @@ import cors from "cors"
 import dotenv from "dotenv"
 import startupRoutes from "./routes/startupRoutes.js"
 import authRoutes from "./routes/authRoutes.js"
-import commentRoutes from "./routes/commentRoutes.js"
 
 
 dotenv.config()
@@ -15,7 +14,6 @@ app.use(cors())
 app.use(express.json())
 app.use("/api/startups", startupRoutes)
 app.use("/api/auth", authRoutes)
-app.use("/api/comments", commentRoutes)
 
 
 app.get("/", (req, res) => {
