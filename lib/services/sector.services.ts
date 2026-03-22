@@ -154,13 +154,10 @@ export async function getAggregatedSectors(): Promise<SectorsData> {
 
 // Format funding amount to Indian Rupees
 export function formatFunding(amount: number): string {
-  if (amount >= 10000000) { // 10 Cr
-    return `₹${(amount / 10000000).toFixed(1)} Cr`
-  } else if (amount >= 100000) { // 1 Lac
-    return `₹${(amount / 100000).toFixed(1)} Lac`
-  } else {
-    return `₹${amount.toLocaleString()}`
-  }
+  if (amount == null) return "₹0";
+  if (amount >= 10000000) return `₹${(amount / 10000000).toFixed(2).replace(/\.00$/, '')} Cr`;
+  if (amount >= 100000) return `₹${(amount / 100000).toFixed(2).replace(/\.00$/, '')} Lakh`;
+  return `₹${Number(amount).toLocaleString('en-IN')}`;
 }
 
 // Get sector by name for filtering startups

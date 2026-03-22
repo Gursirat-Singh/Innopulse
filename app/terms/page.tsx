@@ -342,7 +342,7 @@ export default function TermsPage() {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent group-hover:w-full transition-all duration-300" />
               </Link>
             </div>
-            <p className="text-sm text-muted-foreground">© 2025 InnoPulse India. All rights reserved.</p>
+            <p className="text-sm text-muted-foreground">© 2026 InnoPulse India. All rights reserved.</p>
           </div>
         </div>
       </footer>

@@ -63,7 +63,11 @@ export default function DashboardLayout({
     new URLSearchParams(window.location.search).get('pdf') === 'true'
 
   if (!isLoggedIn && !isPdfMode) {
-    return null
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+      </div>
+    )
   }
 
   // If in PDF export mode, render just the content without the dashboard shell sidebar/nav

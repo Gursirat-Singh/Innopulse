@@ -77,7 +77,7 @@ export default function AddStartupPage() {
 
     setIsLoading(true)
     try {
-      await createStartup(formData)
+      await createStartup({ ...formData, stage: formData.stage as any })
       router.push("/dashboard")
     } catch (error) {
       console.error("Failed to create startup:", error)
@@ -99,7 +99,7 @@ export default function AddStartupPage() {
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Dashboard
+            Back to Previous
           </button>
           <h1 className="text-5xl font-bold text-foreground bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-chart-3 mb-4">
             Add New Startup

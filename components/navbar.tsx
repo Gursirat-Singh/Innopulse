@@ -202,13 +202,21 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
-            {!isLoggedIn && (
+            {!isLoggedIn ? (
               <Link
                 href="/login"
                 className="sm:hidden px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-xl transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Log in
+              </Link>
+            ) : (
+              <Link
+                href="/dashboard"
+                className="sm:hidden px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-xl transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Dashboard
               </Link>
             )}
           </div>

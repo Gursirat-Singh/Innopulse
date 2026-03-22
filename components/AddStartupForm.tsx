@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Select } from "@/components/ui/select"
-import { createStartup } from "@/lib/services/startup.services"
+import { createStartup, type Startup } from "@/lib/services/startup.services"
 
 interface AddStartupFormProps {
   isOpen: boolean
@@ -59,7 +59,7 @@ export function AddStartupForm({ isOpen, onClose, onSuccess }: AddStartupFormPro
 
     setIsLoading(true)
     try {
-      await createStartup(formData)
+      await createStartup({ ...formData, stage: formData.stage as Startup['stage'] })
       onSuccess()
       onClose()
       setFormData({

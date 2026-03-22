@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
+import { useState, useEffect, useMemo } from "react";
+import { getApprovedStartups, type Startup } from "@/lib/services/startup.services";
+import { formatIndianCurrency, formatIndianNumber } from "@/lib/utils";
 import { Button } from "@/components/ui/button"
 import Logo from "@/components/logo";
 import {
@@ -16,7 +19,6 @@ import {
   PieChart,
   Sparkles,
   Github,
-  Twitter,
   Linkedin,
   ExternalLink,
 } from "lucide-react";
@@ -115,6 +117,26 @@ const cardVariants: Variants = {
 };
 
 export default function HomePage() {
+  const [startups, setStartups] = useState<Startup[]>([]);
+
+  useEffect(() => {
+    getApprovedStartups().then(setStartups).catch(console.error);
+  }, []);
+
+  const { startupCount, fundingSum, uniqueCities } = useMemo(() => {
+    let fundingSum = 0;
+    const citiesRender = new Set();
+    startups.forEach(s => {
+      fundingSum += Number(s.funding) || 0;
+      citiesRender.add(s.city);
+    });
+    return { 
+      startupCount: formatIndianNumber(startups.length), 
+      fundingSum: formatIndianCurrency(fundingSum), 
+      uniqueCities: startups.length > 0 ? citiesRender.size.toString() : "0"
+    };
+  }, [startups]);
+
   return (
     <main
       className="min-h-screen bg-background overflow-hidden"
@@ -184,7 +206,7 @@ export default function HomePage() {
             >
               <Sparkles className="w-4 h-4 text-accent" />
               <span className="text-sm font-medium text-foreground/80">
-                Now tracking 50,000+ startups
+                Now tracking {startups.length > 0 ? startupCount : "..."} startups
               </span>
               <ArrowRight className="w-4 h-4 text-accent" />
             </motion.div>
@@ -294,20 +316,20 @@ export default function HomePage() {
           >
             {[
               {
-                value: "50,000+",
+                value: startups.length > 0 ? startupCount : "...",
                 label: "Startups Tracked",
                 sublabel: "Across India",
                 color: "from-primary/30",
               },
               {
-                value: "₹2.5L Cr",
+                value: startups.length > 0 ? fundingSum : "...",
                 label: "Funding Analyzed",
                 sublabel: "Since 2015",
                 color: "from-accent/30",
               },
               {
-                value: "28",
-                label: "States Covered",
+                value: startups.length > 0 ? uniqueCities : "...",
+                label: "Cities Covered",
                 sublabel: "Full coverage",
                 color: "from-chart-3/30",
               },
@@ -790,9 +812,8 @@ export default function HomePage() {
               {/* Social Links */}
               <div className="flex items-center gap-3 mt-6">
                 {[
-                  { icon: Github, href: "#", label: "GitHub" },
-                  { icon: Twitter, href: "#", label: "Twitter" },
-                  { icon: Linkedin, href: "#", label: "LinkedIn" },
+                  { icon: Github, href: "https://github.com/Gursirat-Singh", label: "GitHub" },
+                  { icon: Linkedin, href: "https://www.linkedin.com/in/gursirat22", label: "LinkedIn" },
                 ].map((social, i) => (
                   <a
                     key={i}
@@ -882,7 +903,7 @@ export default function HomePage() {
           <div className="pt-8 border-t border-white/5">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <p className="text-sm text-muted-foreground">
-                © 2025 InnoPulse India. All rights reserved.
+                © 2026 InnoPulse India. All rights reserved.
               </p>
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 Built with <span className="text-red-400 mx-1">♥</span> for India&apos;s startup ecosystem

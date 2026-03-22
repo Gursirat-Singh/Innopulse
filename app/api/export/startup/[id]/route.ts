@@ -80,7 +80,7 @@ export async function GET(
       `,
       footerTemplate: `
         <div style="font-size: 8px; color: #666; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 5px 20px;">
-          <span>© 2025 Innopulse - India's Startup Ecosystem Platform</span>
+          <span>© 2026 Innopulse - India's Startup Ecosystem Platform</span>
           <span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
         </div>
       `,

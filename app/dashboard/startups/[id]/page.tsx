@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
+import { formatIndianCurrency, formatIndianNumber } from "@/lib/utils"
 import { motion } from "framer-motion"
 import {
   Building2,
@@ -71,23 +72,6 @@ interface Startup {
   approvedBy?: string
   createdAt: string
   updatedAt: string
-}
-
-const formatCurrency = (amount: number) => {
-  if (amount >= 10000000) { // 1 crore
-    const crores = amount / 10000000
-    return `₹${crores.toFixed(1)} Cr`
-  } else if (amount >= 100000) { // 1 lakh
-    const lakhs = amount / 100000
-    return `₹${lakhs.toFixed(1)}L`
-  } else {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount)
-  }
 }
 
 const formatDate = (dateString: string) => {
@@ -359,7 +343,7 @@ export default function StartupDetailsPage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Total Capital Raised</p>
-                <p className="text-xl font-bold text-green-700">{formatCurrency(startup.funding)}</p>
+                <p className="text-xl font-bold text-green-700">{formatIndianCurrency(startup.funding)}</p>
               </div>
             </div>
 
@@ -448,7 +432,7 @@ export default function StartupDetailsPage() {
                         </div>
                         <div>
                           <p className={`text-sm ${isPdfMode ? 'text-gray-600' : 'text-muted-foreground'}`}>Total Funding</p>
-                          <p className={`text-2xl font-bold ${isPdfMode ? 'text-gray-900' : 'text-foreground'}`}>{formatCurrency(startup.funding)}</p>
+                          <p className={`text-2xl font-bold ${isPdfMode ? 'text-gray-900' : 'text-foreground'}`}>{formatIndianCurrency(startup.funding)}</p>
                         </div>
                       </div>
                     </div>
@@ -489,7 +473,7 @@ export default function StartupDetailsPage() {
                   <h3 className={`text-lg font-semibold mb-3 ${isPdfMode ? 'text-gray-900' : 'text-foreground'}`}>About {startup.name}</h3>
                   <p className={`leading-relaxed ${isPdfMode ? 'text-gray-700' : 'text-muted-foreground'}`}>
                     {startup.name} is a {startup.stage?.toLowerCase()} stage startup operating in the {startup.sector?.toLowerCase()} sector.
-                    Located in {startup.city}, the company has raised {formatCurrency(startup.funding)} in funding and employs {startup.employees} people.
+                    Located in {startup.city}, the company has raised {formatIndianCurrency(startup.funding)} in funding and employs {startup.employees} people.
                     They generate revenue in the {startup.revenueRange?.toLowerCase()} range and are actively growing in the Indian startup ecosystem.
                   </p>
                 </div>
@@ -535,7 +519,7 @@ export default function StartupDetailsPage() {
                             stroke={isPdfMode ? "#6b7280" : "#3b82f6"}
                             fontSize={isPdfMode ? 10 : 12}
                             tick={{ fill: isPdfMode ? "#374151" : "#3b82f6" }}
-                            tickFormatter={(value) => `₹${(value / 100000).toFixed(0)}L`}
+                            tickFormatter={(value) => formatIndianCurrency(value).replace("₹", "")}
                             width={isPdfMode ? 80 : 60}
                           />
                           <Tooltip
@@ -547,7 +531,7 @@ export default function StartupDetailsPage() {
                               boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
                               fontSize: isPdfMode ? '12px' : '14px'
                             }}
-                            formatter={(value: number | undefined) => value ? [formatCurrency(value), 'Monthly Revenue'] : ['N/A', 'Monthly Revenue']}
+                            formatter={(value: any) => value ? [formatIndianCurrency(Number(value)), 'Monthly Revenue'] : ['N/A', 'Monthly Revenue']}
                             labelStyle={{ color: isPdfMode ? '#111827' : 'hsl(var(--popover-foreground))' }}
                           />
                           <Line
@@ -586,7 +570,7 @@ export default function StartupDetailsPage() {
                             stroke={isPdfMode ? "#6b7280" : "#3b82f6"}
                             fontSize={isPdfMode ? 10 : 12}
                             tick={{ fill: isPdfMode ? "#374151" : "#3b82f6" }}
-                            tickFormatter={(value) => `${(value / 1000).toFixed(1)}K`}
+                            tickFormatter={(value) => formatIndianNumber(value)}
                             width={isPdfMode ? 80 : 60}
                           />
                           <Tooltip
@@ -598,8 +582,8 @@ export default function StartupDetailsPage() {
                               boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
                               fontSize: isPdfMode ? '12px' : '14px'
                             }}
-                            formatter={(value: number | undefined, name: string | undefined) => value && name ? [
-                              name === 'users' ? `${value.toLocaleString()} users` : `${value} new users`,
+                            formatter={(value: any, name?: string) => value && name ? [
+                              name === 'users' ? `${formatIndianNumber(Number(value))} users` : `${formatIndianNumber(Number(value))} new users`,
                               name === 'users' ? 'Total Users' : 'New Users'
                             ] : ['N/A', 'N/A']}
                             labelStyle={{ color: isPdfMode ? '#111827' : 'hsl(var(--popover-foreground))' }}
@@ -725,7 +709,7 @@ export default function StartupDetailsPage() {
                               fontSize: isPdfMode ? '12px' : '14px'
                             }}
                             formatter={(value: number | undefined, name: string | undefined) => value && name ? [
-                              name === 'amount' ? formatCurrency(value) : `${value} investors`,
+                              name === 'amount' ? formatIndianCurrency(value) : `${value} investors`,
                               name === 'amount' ? 'Funding Amount' : 'Investors'
                             ] : ['N/A', 'N/A']}
                             labelStyle={{ color: isPdfMode ? '#111827' : 'hsl(var(--popover-foreground))' }}

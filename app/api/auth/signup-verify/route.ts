@@ -113,15 +113,22 @@ export async function POST(req: NextRequest) {
     const token = jwt.sign(
       { id: targetUser._id, role: targetUser.role },
       process.env.JWT_SECRET!,
-      { expiresIn: "1d" }
+      { expiresIn: "15m" }
     );
 
-    console.log("🔑 JWT token generated for automatic login");
+    const refreshToken = jwt.sign(
+      { id: targetUser._id, role: targetUser.role },
+      process.env.JWT_SECRET!,
+      { expiresIn: "7d" }
+    );
+
+    console.log("🔑 JWT token and refresh token generated for automatic login");
 
     return NextResponse.json({
       message: "Account created successfully! Logging you in...",
       verified: true,
-      token: token
+      token: token,
+      refreshToken: refreshToken
     });
 
   } catch (error) {

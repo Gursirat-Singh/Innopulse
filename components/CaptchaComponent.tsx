@@ -64,6 +64,8 @@ export default function CaptchaComponent({ onCaptchaChange, error }: CaptchaComp
           {captchaSvg ? (
             <div
               className="flex items-center justify-center bg-muted/50 rounded-lg p-2"
+              aria-label="Security check, please enter the characters shown in the image"
+              role="img"
               dangerouslySetInnerHTML={{ __html: captchaSvg }}
             />
           ) : (

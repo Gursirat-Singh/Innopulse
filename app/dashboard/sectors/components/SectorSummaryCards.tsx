@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { SectorsData, formatFunding } from "@/lib/services/sector.services"
+import { formatIndianNumber } from "@/lib/utils"
 
 // Sector Summary Cards Server Component
 export default function SectorSummaryCards({ sectorsData }: { sectorsData: SectorsData }) {
@@ -23,7 +24,7 @@ export default function SectorSummaryCards({ sectorsData }: { sectorsData: Secto
       <Card className="glass border-border/50">
         <CardHeader className="pb-3">
           <CardDescription>Total Startups</CardDescription>
-          <CardTitle className="text-2xl">{stats.totalStartups.toLocaleString()}</CardTitle>
+          <CardTitle className="text-2xl">{formatIndianNumber(stats.totalStartups)}</CardTitle>
         </CardHeader>
       </Card>
 

@@ -59,8 +59,11 @@ export default function VerifySignupPage() {
       if (response.ok && data.verified && data.token) {
         setMessage("Account created successfully! Logging you in...")
 
-        // Store the JWT token
+        // Store the JWT token and refresh token
         localStorage.setItem("token", data.token)
+        if (data.refreshToken) {
+          localStorage.setItem("refreshToken", data.refreshToken)
+        }
 
         // Redirect to home page after successful login
         setTimeout(() => {

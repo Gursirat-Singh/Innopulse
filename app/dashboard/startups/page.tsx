@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
+import { formatIndianCurrency } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -83,26 +85,6 @@ interface Startup {
 
 type SortField = "name" | "funding" | "employees" | "createdAt";
 type SortDirection = "asc" | "desc";
-
-// Utility functions
-const formatCurrency = (amount: number) => {
-  if (amount >= 10000000) {
-    // 1 crore
-    const crores = amount / 10000000;
-    return `₹${crores.toFixed(1)} Cr`;
-  } else if (amount >= 100000) {
-    // 1 lakh
-    const lakhs = amount / 100000;
-    return `₹${lakhs.toFixed(1)}L`;
-  } else {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  }
-};
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString("en-IN", {
@@ -328,7 +310,7 @@ export default function StartupsPage() {
       Sector: s.sector,
       City: s.city,
       Stage: s.stage,
-      Funding: formatCurrency(s.funding),
+      Funding: formatIndianCurrency(s.funding),
       Employees: s.employees,
       "Revenue Range": s.revenueRange,
       Website: s.website || "",
@@ -510,7 +492,7 @@ export default function StartupsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">
-              {formatCurrency(summaryStats.totalFunding)}
+              {formatIndianCurrency(summaryStats.totalFunding)}
             </div>
           </CardContent>
         </Card>
@@ -684,7 +666,7 @@ export default function StartupsPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
+              transition={{ duration: 0.3 }}
               className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6"
             >
               {paginatedStartups.map((startup, index) => (
@@ -732,7 +714,7 @@ export default function StartupsPage() {
                         </span>
                       </div>
                       <div className="text-lg font-bold text-foreground">
-                        {formatCurrency(startup.funding)}
+                        {formatIndianCurrency(startup.funding)}
                       </div>
                     </div>
                     <div className="text-center p-3 bg-card/30 rounded-lg">

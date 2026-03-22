@@ -64,6 +64,9 @@ export default function LoginPage() {
 
       if (response.ok) {
         localStorage.setItem("token", data.token)
+        if (data.refreshToken) {
+          localStorage.setItem("refreshToken", data.refreshToken)
+        }
         window.location.href = "/"
       } else {
         setError(data.message || "Login failed")

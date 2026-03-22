@@ -8,6 +8,7 @@ export const getToken = () => {
 
 export const logout = () => {
   localStorage.removeItem("token")
+  localStorage.removeItem("refreshToken")
 }
 
 export const isAuthenticated = () => {
