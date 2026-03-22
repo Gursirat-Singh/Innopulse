@@ -3,8 +3,16 @@ import Startup from "../models/startup.js"
 /* ---------------- CREATE (PENDING) ---------------- */
 export const createStartup = async (req, res) => {
   try {
+    const { name, sector, city, stage, website, email, phone } = req.body;
+
     const startup = await Startup.create({
-      ...req.body,
+      name,
+      sector,
+      city,
+      stage,
+      website,
+      email,
+      phone,
       createdBy: req.user._id,
       status: "pending",
     })
