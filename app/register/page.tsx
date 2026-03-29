@@ -214,9 +214,7 @@ export default function RegisterPage() {
             className="text-center mb-8"
           >
             <div className="flex justify-center mb-6 lg:hidden">
-              <div className="w-14 h-14 bg-gradient-to-br from-accent to-primary rounded-2xl flex items-center justify-center shadow-2xl shadow-accent/25">
-                <UserPlus className="w-7 h-7 text-primary-foreground" />
-              </div>
+              <Logo size="lg" showText={false} />
             </div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
               Create Account

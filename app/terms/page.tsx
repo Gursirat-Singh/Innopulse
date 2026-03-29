@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { motion, type Variants } from "framer-motion"
 import Navbar from "@/components/navbar"
-import { ArrowLeft, Shield, Mail, FileText, ChevronRight, Zap } from "lucide-react"
+import { ArrowLeft, Shield, Mail, FileText, ChevronRight } from "lucide-react"
+import { Footer } from "@/components/footer"
 
 const fadeUpVariants: Variants = {
   hidden: { opacity: 0, y: 30 },
@@ -314,38 +315,8 @@ export default function TermsPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="relative py-16 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            <motion.div
-              className="flex items-center gap-2"
-              whileHover={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
-              </div>
-              <span className="font-semibold text-foreground text-lg">InnoPulse India</span>
-            </motion.div>
-            <div className="flex items-center gap-8">
-              <Link href="/terms#privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors relative group">
-                Privacy
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent group-hover:w-full transition-all duration-300" />
-              </Link>
-              <Link href="/terms#terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors relative group">
-                Terms
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent group-hover:w-full transition-all duration-300" />
-              </Link>
-              <Link href="/terms#contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors relative group">
-                Contact
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-accent group-hover:w-full transition-all duration-300" />
-              </Link>
-            </div>
-            <p className="text-sm text-muted-foreground">© 2026 InnoPulse India. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      {/* Global Footer */}
+      <Footer />
     </main>
   )
 }

@@ -15,6 +15,10 @@ import {
   Moon,
   UserX,
   Eye,
+  Edit3,
+  AlertTriangle,
+  Save,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,7 +42,8 @@ import { useAuth } from "@/lib/auth-context";
 import { useTheme } from "@/lib/theme-context";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { deleteStartup, getPendingStartups, getApprovedStartups, approveStartup } from "@/lib/services/startup.services";
+import { deleteStartup, getPendingStartups, getApprovedStartups, approveStartup, getStaleStartups, updateStartup } from "@/lib/services/startup.services";
+import type { Startup } from "@/lib/services/startup.services";
 
 interface PendingStartup {
   _id: string;
@@ -49,7 +54,16 @@ interface PendingStartup {
   description?: string;
 }
 
-interface ApprovedStartup extends PendingStartup {}
+interface ApprovedStartup extends PendingStartup {
+  isStale?: boolean;
+  lastActivityAt?: string;
+  funding?: number;
+  employees?: number;
+  revenueRange?: string;
+  website?: string;
+  email?: string;
+  phone?: string;
+}
 
 interface UserData {
   _id: string;
@@ -59,15 +73,17 @@ interface UserData {
   startupCount: number;
 }
 
-type ViewMode = "pending" | "approved" | "users";
+type ViewMode = "pending" | "approved" | "users" | "stale";
 
 export default function AdminPage() {
   const [pending, setPending] = useState<PendingStartup[]>([]);
   const [approved, setApproved] = useState<ApprovedStartup[]>([]);
   const [users, setUsers] = useState<UserData[]>([]);
+  const [stale, setStale] = useState<ApprovedStartup[]>([]);
   const [loading, setLoading] = useState(true);
   const [approvedLoading, setApprovedLoading] = useState(false);
   const [usersLoading, setUsersLoading] = useState(false);
+  const [staleLoading, setStaleLoading] = useState(false);
   const [approving, setApproving] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -78,6 +94,12 @@ export default function AdminPage() {
   const [approveConfirmOpen, setApproveConfirmOpen] = useState(false);
   const [startupToApprove, setStartupToApprove] = useState<PendingStartup | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("pending");
+
+  // Edit modal state
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingStartup, setEditingStartup] = useState<ApprovedStartup | null>(null);
+  const [editForm, setEditForm] = useState<Record<string, any>>({});
+  const [saving, setSaving] = useState(false);
 
   const { isLoggedIn, isLoading: authLoading, user } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -106,16 +128,19 @@ export default function AdminPage() {
     setLoading(true);
     setApprovedLoading(true);
     setUsersLoading(true);
+    setStaleLoading(true);
 
     try {
-      const [pendingData, approvedData, usersRes] = await Promise.all([
+      const [pendingData, approvedData, usersRes, staleData] = await Promise.all([
         getPendingStartups(),
         getApprovedStartups(),
-        fetch("/api/users")
+        fetch("/api/users"),
+        getStaleStartups().catch(() => [] as ApprovedStartup[]),
       ]);
 
       setPending(pendingData);
       setApproved(approvedData);
+      setStale(staleData as unknown as ApprovedStartup[]);
 
       if (usersRes.ok) {
         const usersData = await usersRes.json();
@@ -127,6 +152,7 @@ export default function AdminPage() {
       setLoading(false);
       setApprovedLoading(false);
       setUsersLoading(false);
+      setStaleLoading(false);
     }
   };
 
@@ -268,6 +294,50 @@ export default function AdminPage() {
     setStartupToApprove(null);
   };
 
+  // Edit modal handlers
+  const handleEditClick = (startup: ApprovedStartup) => {
+    setEditingStartup(startup);
+    setEditForm({
+      name: startup.name,
+      sector: startup.sector,
+      city: startup.city,
+      stage: startup.stage,
+      funding: startup.funding || 0,
+      employees: startup.employees || 0,
+      revenueRange: startup.revenueRange || "",
+      website: startup.website || "",
+      email: startup.email || "",
+      phone: startup.phone || "",
+    });
+    setEditModalOpen(true);
+  };
+
+  const cancelEdit = () => {
+    setEditModalOpen(false);
+    setEditingStartup(null);
+    setEditForm({});
+  };
+
+  const confirmEdit = async () => {
+    if (!editingStartup) return;
+    setSaving(true);
+    try {
+      await updateStartup(editingStartup._id, editForm);
+      // Refresh approved list
+      const data = await getApprovedStartups();
+      setApproved(data);
+      // Refresh stale list
+      const staleData = await getStaleStartups().catch(() => []);
+      setStale(staleData as unknown as ApprovedStartup[]);
+      setEditModalOpen(false);
+      setEditingStartup(null);
+    } catch (error) {
+      console.error("Error updating startup:", error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const getStageColor = (stage: string) =>
     "bg-primary/10 text-primary border-primary/20";
 
@@ -333,7 +403,7 @@ export default function AdminPage() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
+          className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8"
         >
           <Card className="bg-gradient-to-r from-blue-500/10 to-blue-600/10 border-blue-500/20">
             <CardContent className="p-6">
@@ -358,6 +428,20 @@ export default function AdminPage() {
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Approved</p>
                   <p className="text-2xl font-bold text-green-600">{approved.length}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-amber-500/10 to-amber-600/10 border-amber-500/20">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-500/20 rounded-lg">
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Stale</p>
+                  <p className="text-2xl font-bold text-amber-600">{stale.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -410,6 +494,19 @@ export default function AdminPage() {
           >
             <CheckCircle className="w-4 h-4 mr-2" />
             Approved ({approved.length})
+          </Button>
+          <Button
+            onClick={() => setViewMode("stale")}
+            variant={viewMode === "stale" ? "default" : "ghost"}
+            className={
+              viewMode === "stale"
+                ? "bg-amber-600 text-white shadow-sm hover:bg-amber-700"
+                : "text-amber-600 hover:bg-amber-50 hover:text-amber-700"
+            }
+            size="sm"
+          >
+            <AlertTriangle className="w-4 h-4 mr-2" />
+            Stale ({stale.length})
           </Button>
           <Button
             onClick={() => setViewMode("users")}
@@ -592,7 +689,14 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      <div className="flex gap-3">
+                      <div className="flex flex-wrap gap-3">
+                        <Button
+                          onClick={() => handleEditClick(startup)}
+                          className="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white border-0 shadow-sm"
+                        >
+                          <Edit3 className="w-4 h-4 mr-2" />
+                          Edit
+                        </Button>
                         <Button
                           onClick={() => handleDeleteClick(startup)}
                           disabled={deleting === startup._id}
@@ -610,6 +714,92 @@ export default function AdminPage() {
                               Delete
                             </div>
                           )}
+                        </Button>
+                        <Link href={`/dashboard/startups/${startup._id}`}>
+                          <Button
+                            className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white border-0 shadow-sm"
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Details
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          )
+        ) : viewMode === "stale" ? (
+          staleLoading ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-16"
+            >
+              <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-muted-foreground">Loading stale startups...</p>
+            </motion.div>
+          ) : stale.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-16"
+            >
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-foreground mb-2">
+                All Fresh!
+              </h3>
+              <p className="text-muted-foreground">No stale startup records. Everything is up to date.</p>
+            </motion.div>
+          ) : (
+            <div className="grid gap-6">
+              {stale.map((startup, index) => (
+                <motion.div
+                  key={startup._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className="group hover:shadow-lg transition-all duration-300 border-amber-500/30 bg-amber-500/5">
+                    <CardHeader className="pb-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-xl text-foreground flex items-center gap-3 mb-2">
+                            <Building2 className="w-5 h-5 text-amber-500" />
+                            {startup.name}
+                            <Badge className="bg-amber-500/20 text-amber-700 border-amber-500/30" variant="secondary">
+                              <AlertTriangle className="w-3 h-3 mr-1" />
+                              Stale
+                            </Badge>
+                          </CardTitle>
+                          <CardDescription className="text-base">
+                            Last activity: {startup.lastActivityAt ? new Date(startup.lastActivityAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Unknown"}
+                          </CardDescription>
+                        </div>
+                        <Badge className={getStageColor(startup.stage)} variant="secondary">
+                          {startup.stage}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="flex flex-wrap gap-4 mb-6 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <Target className="w-4 h-4" />
+                          <span>{startup.sector}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4" />
+                          <span>{startup.city}</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-3">
+                        <Button
+                          onClick={() => handleEditClick(startup)}
+                          className="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white border-0 shadow-sm"
+                        >
+                          <Edit3 className="w-4 h-4 mr-2" />
+                          Update Record
                         </Button>
                         <Link href={`/dashboard/startups/${startup._id}`}>
                           <Button
@@ -791,6 +981,137 @@ export default function AdminPage() {
               className="flex-1 bg-green-600 hover:bg-green-700 text-white"
             >
               Yes, Approve
+            </Button>
+          </div>
+        </Dialog>
+
+        {/* Edit Startup Dialog */}
+        <Dialog
+          isOpen={editModalOpen}
+          onClose={cancelEdit}
+          title="Edit Startup"
+        >
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+            {/* Name */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1 block">Name</label>
+              <input
+                type="text"
+                value={editForm.name || ""}
+                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border border-border/50 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+            {/* Sector */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1 block">Sector</label>
+              <input
+                type="text"
+                value={editForm.sector || ""}
+                onChange={(e) => setEditForm({ ...editForm, sector: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border border-border/50 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+            {/* City */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1 block">City</label>
+              <input
+                type="text"
+                value={editForm.city || ""}
+                onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border border-border/50 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+            {/* Stage */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1 block">Stage</label>
+              <select
+                value={editForm.stage || ""}
+                onChange={(e) => setEditForm({ ...editForm, stage: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border border-border/50 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              >
+                {["Ideation", "Seed", "Series A", "Series B", "Growth"].map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+            {/* Funding */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1 block">Funding (₹)</label>
+              <input
+                type="number"
+                value={editForm.funding || 0}
+                onChange={(e) => setEditForm({ ...editForm, funding: Number(e.target.value) })}
+                className="w-full px-3 py-2 rounded-lg border border-border/50 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+            {/* Employees */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1 block">Employees</label>
+              <input
+                type="number"
+                value={editForm.employees || 0}
+                onChange={(e) => setEditForm({ ...editForm, employees: Number(e.target.value) })}
+                className="w-full px-3 py-2 rounded-lg border border-border/50 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+            {/* Website */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1 block">Website</label>
+              <input
+                type="text"
+                value={editForm.website || ""}
+                onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border border-border/50 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+            {/* Email */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1 block">Email</label>
+              <input
+                type="email"
+                value={editForm.email || ""}
+                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border border-border/50 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+            {/* Phone */}
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1 block">Phone</label>
+              <input
+                type="text"
+                value={editForm.phone || ""}
+                onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border border-border/50 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3 mt-6">
+            <Button
+              onClick={cancelEdit}
+              variant="outline"
+              className="flex-1 border-border/50 text-foreground hover:text-foreground hover:border-border"
+            >
+              <X className="w-4 h-4 mr-2" />
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmEdit}
+              disabled={saving}
+              className="flex-1 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white"
+            >
+              {saving ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Saving...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Save className="w-4 h-4" />
+                  Save Changes
+                </div>
+              )}
             </Button>
           </div>
         </Dialog>

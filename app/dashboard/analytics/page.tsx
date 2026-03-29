@@ -18,6 +18,7 @@ import {
 } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getApprovedStartups, Startup } from "@/lib/services/startup.services"
+import Logo from "@/components/logo"
 
 const formatIndianCurrency = (num: number) => {
   if (num >= 10000000) return `₹${(num / 10000000).toFixed(2).replace(/\.00$/, '')} Cr`;
@@ -306,12 +307,12 @@ export default function AnalyticsPage() {
     try {
       setIsExporting(true)
 
-      // Wait for state update and re-render
-      await new Promise(resolve => setTimeout(resolve, 100))
+      // Wait for state update and re-render of hidden chart structure
+      await new Promise(resolve => setTimeout(resolve, 500))
 
-      const element = document.querySelector('.analytics-content') as HTMLElement
+      const element = document.querySelector('.pdf-export-container') as HTMLElement
       if (!element) {
-        throw new Error('Analytics content not found')
+        throw new Error('Analytics print layout not found')
       }
 
       // Configure html2canvas options to avoid color parsing issues
@@ -362,6 +363,7 @@ export default function AnalyticsPage() {
   }
 
   return (
+    <>
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="max-w-7xl mx-auto p-6 space-y-8 analytics-content">
 
@@ -399,16 +401,23 @@ export default function AnalyticsPage() {
             <h2 className="text-2xl font-semibold text-foreground">Key Performance Indicators</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 perspective-[2000px]">
             {kpiData.map((kpi, index) => (
               <motion.div
                 key={kpi.title}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.1 + index * 0.1 }}
-                whileHover={{ scale: 1.02, y: -2 }}
-                className="glass-strong rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-border/50"
+                whileHover={{ 
+                  scale: 1.03, 
+                  y: -8, 
+                  rotateX: 2, 
+                  rotateY: -2,
+                  boxShadow: "0 30px 60px -15px rgba(0,0,0,0.3)" 
+                }}
+                className="glass-strong rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-border/50 relative overflow-hidden group cursor-default hover:border-primary/40"
               >
+                {/* Glass Glare */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500 rounded-2xl" />
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl flex items-center justify-center">
                     <kpi.icon className="w-6 h-6 text-primary" />
@@ -458,7 +467,7 @@ export default function AnalyticsPage() {
               transition={{ delay: 0.3 }}
               className="xl:col-span-2"
             >
-              <Card className="glass-strong shadow-lg border border-border/50 h-full">
+            <Card className="glass-strong shadow-lg border border-border/50 h-full transition-all duration-500 hover:shadow-2xl hover:border-primary/30 hover:-translate-y-1">
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl flex items-center justify-center">
@@ -558,7 +567,7 @@ export default function AnalyticsPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <Card className="glass-strong shadow-lg border border-border/50 h-full">
+            <Card className="glass-strong shadow-lg border border-border/50 h-full transition-all duration-500 hover:shadow-2xl hover:border-primary/30 hover:-translate-y-1">
                 <CardHeader>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-xl flex items-center justify-center">
@@ -644,7 +653,7 @@ export default function AnalyticsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="glass-strong shadow-lg border border-border/50">
+            <Card className="glass-strong shadow-lg border border-border/50 h-full transition-all duration-500 hover:shadow-2xl hover:border-primary/30 hover:-translate-y-1 group">
               <CardHeader>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-xl flex items-center justify-center">
@@ -905,5 +914,95 @@ export default function AnalyticsPage() {
         </motion.section>
       </div>
     </div>
+
+    {/* PDF EXPORT TEMPLATE - HIDDEN FROM LIVE VIEW */}
+    <div 
+      className={`pdf-export-container fixed top-[20000px] left-0 bg-white text-black ${isExporting ? 'block' : 'hidden'}`}
+      style={{ width: '210mm', minHeight: '297mm', padding: '20mm', zIndex: -50 }}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between border-b pb-4 mb-8 border-gray-200">
+        <div className="flex items-center gap-3">
+          <Logo size="lg" showText={false} />
+          <div>
+            <h1 className="text-3xl font-bold flex bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent tracking-tight">InnoPulse</h1>
+            <p className="text-sm font-medium text-gray-500 tracking-wide mt-1">Ecosystem Intelligence</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-sm font-extrabold text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded inline-block">Executive Report</p>
+          <p className="text-xs text-gray-400 mt-2 font-medium">{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        </div>
+      </div>
+
+      {/* KPIs Grid */}
+      <div className="grid grid-cols-3 gap-6 mb-12">
+        {kpiData.map((kpi) => (
+          <div key={kpi.title} className="p-5 border border-gray-200 rounded-2xl bg-gray-50/50">
+            <div className="flex items-center gap-2 mb-2">
+              <kpi.icon className="w-4 h-4 text-blue-600" />
+              <div className="text-sm text-gray-500 font-bold uppercase tracking-wide">{kpi.title}</div>
+            </div>
+            <div className="text-3xl font-black text-gray-900 my-2">{kpi.value}</div>
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-bold px-2 py-0.5 rounded ${kpi.changeType === 'positive' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                {kpi.change}
+              </span>
+              <span className="text-xs text-gray-400 font-medium">{kpi.description}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Explicitly Sized Recharts */}
+      <div className="mb-12">
+        <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+           <Zap className="w-5 h-5 text-gray-400" /> Capital Growth Trajectory
+        </h2>
+        <div style={{ width: '100%', height: '280px' }} className="border border-gray-200 rounded-2xl p-6 bg-white shadow-sm">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={growthTrendData}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
+              <XAxis dataKey="month" stroke="#9CA3AF" fontSize={11} tickLine={false} axisLine={false} dy={10} />
+              <YAxis stroke="#9CA3AF" fontSize={11} tickLine={false} axisLine={false} dx={-10} tickFormatter={(value) => `${formatIndianCurrency(value)}`} />
+              <Area type="monotone" dataKey="funding" stroke="#3B82F6" strokeWidth={3} fill="#EFF6FF" isAnimationActive={false} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="mb-12">
+        <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+           <Target className="w-5 h-5 text-gray-400" /> Registration Volume
+        </h2>
+        <div style={{ width: '100%', height: '280px' }} className="border border-gray-200 rounded-2xl p-6 bg-white shadow-sm">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={growthTrendData}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
+              <XAxis dataKey="month" stroke="#9CA3AF" fontSize={11} tickLine={false} axisLine={false} dy={10} />
+              <YAxis stroke="#9CA3AF" fontSize={11} tickLine={false} axisLine={false} dx={-10} tickFormatter={(value) => `${formatIndianNumber(value)}`} />
+              <Area type="monotone" dataKey="startups" stroke="#8B5CF6" strokeWidth={3} fill="#F5F3FF" isAnimationActive={false} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="pt-8 mt-12 border-t-2 border-dashed border-gray-200" style={{ pageBreakBefore: 'always' }}>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6 tracking-tight">Executive Summary & Insights</h2>
+        <div className="space-y-4">
+            {insightsData.map((insight, idx) => (
+              <div key={idx} className="p-5 bg-gray-50 border border-gray-200 rounded-xl flex items-start gap-4">
+                <div className={`w-3 h-3 rounded-full mt-1.5 flex-shrink-0 ${
+                  insight.trend === 'up' ? 'bg-green-500' :
+                  insight.trend === 'down' ? 'bg-red-500' : 'bg-blue-500'
+                }`} />
+                <p className="text-base text-gray-800 leading-relaxed font-medium">{insight.description}</p>
+              </div>
+            ))}
+        </div>
+      </div>
+
+    </div>
+    </>
   )
 }

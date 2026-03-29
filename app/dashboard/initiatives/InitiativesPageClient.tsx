@@ -229,16 +229,25 @@ export function InitiativesPageClient({ initiatives }: InitiativesPageClientProp
             </div>
 
             {/* Initiatives Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 perspective-[2000px]">
               {filteredInitiatives.map((initiative, index) => (
                 <motion.div
                   key={initiative.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + index * 0.1 }}
-                  whileHover={{ scale: 1.02, y: -5 }}
-                  className="apple-glass rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 group cursor-pointer h-full"
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: 0.2 + index * 0.05, type: "spring", stiffness: 100 }}
+                  whileHover={{ 
+                    scale: 1.03, 
+                    y: -10, 
+                    rotateX: 2, 
+                    rotateY: -2,
+                    boxShadow: "0 30px 60px -15px rgba(0,0,0,0.3)" 
+                  }}
+                  className="apple-glass rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:border-primary/40 transition-all duration-300 group cursor-pointer h-full relative overflow-hidden"
+                  onClick={() => router.push(`/dashboard/initiatives/${initiative.id}`)}
                 >
+                  {/* Glass Glare Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500 rounded-2xl" />
                   {/* Header Section */}
                   <div className="flex items-start gap-4 mb-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl flex items-center justify-center group-hover:from-primary/30 group-hover:to-accent/30 transition-all duration-300 shadow-lg">

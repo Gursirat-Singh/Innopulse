@@ -12,6 +12,7 @@ interface User {
   role: string
   createdAt: string
   updatedAt: string
+  watchlist?: string[]
 }
 
 interface AuthContextType {
@@ -58,7 +59,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
 
     try {
-      const response = await api.get('/auth/profile')
+      const response = await api.get(`/auth/profile?_t=${Date.now()}`)
       setUser(response.data)
     } catch (error: any) {
       console.error('Failed to fetch user profile:', error)

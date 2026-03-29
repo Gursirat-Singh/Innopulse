@@ -39,7 +39,8 @@ export async function GET(request: NextRequest) {
       phone: user.phone,
       role: user.role,
       createdAt: user.createdAt,
-      updatedAt: user.updatedAt
+      updatedAt: user.updatedAt,
+      watchlist: (user.watchlist || []).map((id: any) => id.toString())
     })
 
   } catch (error) {

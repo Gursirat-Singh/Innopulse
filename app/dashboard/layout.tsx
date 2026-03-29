@@ -5,7 +5,7 @@ import { useState } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import type React from "react"
-import { LayoutDashboard, Building2, Target, PieChart, Zap, X, LogOut, Menu, Sun, Moon, BarChart3, Clock } from "lucide-react"
+import { LayoutDashboard, Building2, Target, PieChart, Zap, X, LogOut, Menu, Sun, Moon, BarChart3, Clock, Bookmark } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo } from "react"
@@ -28,6 +28,7 @@ export default function DashboardLayout({
       { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
       { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
       { name: "Startups", href: "/dashboard/startups", icon: Building2 },
+      { name: "Watchlist", href: "/dashboard/watchlist", icon: Bookmark, badge: user?.watchlist?.length ? user.watchlist.length : undefined },
       { name: "Initiatives", href: "/dashboard/initiatives", icon: Target },
       { name: "Sectors", href: "/dashboard/sectors", icon: PieChart },
     ]
@@ -38,7 +39,7 @@ export default function DashboardLayout({
     }
 
     return baseNav
-  }, [user?.role])
+  }, [user?.role, user?.watchlist?.length])
 
   useEffect(() => {
     // Skip authentication check for PDF generation mode
@@ -123,7 +124,11 @@ export default function DashboardLayout({
                     className={`w-5 h-5 transition-smooth ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`}
                   />
                   {item.name}
-                  {isActive && <div className="ml-auto w-1.5 h-1.5 bg-primary rounded-full" />}
+                  {item.badge !== undefined ? (
+                    <span className="ml-auto bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full">
+                      {item.badge}
+                    </span>
+                  ) : isActive && <div className="ml-auto w-1.5 h-1.5 bg-primary rounded-full" />}
                 </Link>
               )
             })}

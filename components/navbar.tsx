@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { User, LogOut, UserIcon, Zap, Sun, Moon, Menu, X } from "lucide-react"
+import { User, LogOut, UserIcon, Zap, Sun, Moon, Menu, X, Bookmark } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { useTheme } from "@/lib/theme-context"
 import { useState } from "react"
@@ -44,9 +44,9 @@ export default function Navbar() {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="fixed top-0 left-0 right-0 z-50"
+        className="fixed top-0 left-0 right-0 z-50 pointer-events-none"
       >
-        <div className="mx-4 mt-3 rounded-2xl bg-background/60 backdrop-blur-2xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+        <div className="mx-4 mt-4 rounded-full bg-background/60 backdrop-blur-2xl border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),_0_20px_40px_-15px_rgba(0,0,0,0.4)] pointer-events-auto">
           <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             <Link href="/" className="flex items-center">
               <Logo size="md" />
@@ -64,9 +64,9 @@ export default function Navbar() {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="fixed top-0 left-0 right-0 z-50"
+        className="fixed top-0 left-0 right-0 z-50 pointer-events-none"
       >
-        <div className="mx-4 mt-3 rounded-2xl bg-background/60 backdrop-blur-2xl border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+        <div className="mx-4 mt-4 rounded-full bg-background/60 backdrop-blur-2xl border border-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),_0_20px_40px_-15px_rgba(0,0,0,0.4)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),_0_25px_50px_-12px_rgba(0,0,0,0.5)] transition-all duration-500 pointer-events-auto">
           {/* Gradient line at bottom */}
           <div className="absolute bottom-0 left-[10%] right-[10%] h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
@@ -162,12 +162,27 @@ export default function Navbar() {
                           </Link>
                         </DropdownMenuItem>
                       ) : (
-                        <DropdownMenuItem asChild>
-                          <Link href="/profile" className="flex items-center gap-2">
-                            <User className="w-4 h-4" />
-                            Profile
-                          </Link>
-                        </DropdownMenuItem>
+                        <>
+                          <DropdownMenuItem asChild>
+                            <Link href="/profile" className="flex items-center gap-2">
+                              <User className="w-4 h-4" />
+                              Profile
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href="/dashboard/watchlist" className="flex items-center gap-2 justify-between w-full">
+                              <div className="flex items-center gap-2">
+                                <Bookmark className="w-4 h-4" />
+                                Watchlist
+                              </div>
+                              {user?.watchlist && user.watchlist.length > 0 && (
+                                <span className="bg-primary/20 text-primary text-xs font-bold px-1.5 py-0.5 rounded-full">
+                                  {user.watchlist.length}
+                               </span>
+                              )}
+                            </Link>
+                          </DropdownMenuItem>
+                        </>
                       )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={logout} className="flex items-center gap-2 text-destructive focus:text-destructive">

@@ -5,17 +5,17 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-300 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        default: "bg-primary text-primary-foreground shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_4px_6px_-2px_rgba(0,10,20,0.15)] hover:bg-primary/95 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),0_8px_12px_-3px_rgba(0,10,20,0.2)] hover:-translate-y-0.5",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "bg-destructive text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_6px_-2px_rgba(220,0,0,0.15)] hover:bg-destructive/90 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),0_8px_12px_-3px_rgba(220,0,0,0.2)] hover:-translate-y-0.5 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-blue-600 dark:bg-input/30 dark:border-input dark:hover:bg-input/50 dark:hover:text-blue-400",
+          "border bg-background shadow-[0_2px_4px_rgba(0,0,0,0.02)] hover:shadow-[0_4px_8px_rgba(0,0,0,0.05)] hover:-translate-y-0.5 hover:bg-accent hover:text-blue-600 dark:bg-input/30 dark:border-input dark:hover:bg-input/50 dark:hover:text-blue-400",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_2px_4px_rgba(0,0,0,0.05)] hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),0_4px_8px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 hover:bg-secondary/80",
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 dark:hover:text-accent",
         link: "text-primary underline-offset-4 hover:underline",

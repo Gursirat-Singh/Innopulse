@@ -63,6 +63,29 @@ const startupSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+
+    /* ---------- Activity Tracking ---------- */
+    lastActivityAt: {
+      type: Date,
+      default: Date.now,
+    },
+
+    isStale: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
+    /* ---------- Change History ---------- */
+    changeHistory: [
+      {
+        changedAt: { type: Date, default: Date.now },
+        changedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        changedFields: [String],
+        previousValues: { type: mongoose.Schema.Types.Mixed },
+        newValues: { type: mongoose.Schema.Types.Mixed },
+      },
+    ],
   },
   { timestamps: true }
 )

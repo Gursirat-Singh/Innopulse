@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import jwt from "jsonwebtoken"
 import connectToDatabase from "@/lib/mongodb"
 import Startup from "@/server/models/startup"
+import { rateLimit, getIP } from "@/lib/rateLimiter"
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,6 +24,16 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // RATE LIMIT: max 5 requests per hour per IP
+    const ip = getIP(request);
+    const rl = await rateLimit(`startup_sub_${ip}`, 5, 60 * 60 * 1000);
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: "Too many startup submissions. Please try again later." },
+        { status: 429, headers: { "X-RateLimit-Reset": rl.reset.toString() } }
+      );
+    }
+
     await connectToDatabase()
 
     // Authenticate user

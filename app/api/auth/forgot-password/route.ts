@@ -3,12 +3,23 @@ import bcrypt from "bcryptjs";
 import connectToDatabase from "@/lib/mongodb";
 import { NextRequest, NextResponse } from "next/server";
 import { generateOTP, sendOTPEmail } from "@/lib/email";
+import { rateLimit, getIP } from "@/lib/rateLimiter";
 
 /**
  * POST /api/auth/forgot-password
  */
 export async function POST(req: NextRequest) {
   try {
+    // RATE LIMIT: max 3 requests per 15 minutes per IP
+    const ip = getIP(req);
+    const rl = await rateLimit(`forgot_pw_${ip}`, 3, 15 * 60 * 1000);
+    if (!rl.success) {
+      return NextResponse.json(
+        { message: "Too many password reset requests. Please try again later." },
+        { status: 429, headers: { "X-RateLimit-Reset": rl.reset.toString() } }
+      );
+    }
+
     await connectToDatabase();
 
     const body = await req.json();

@@ -6,8 +6,6 @@ import startupRoutes from "./routes/startupRoutes.js"
 import authRoutes from "./routes/authRoutes.js"
 import helmet from "helmet"
 import rateLimit from "express-rate-limit"
-
-
 dotenv.config()
 
 const app = express()
@@ -45,3 +43,4 @@ mongoose
     )
   })
   .catch((err) => console.error(err))
+

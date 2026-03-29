@@ -34,6 +34,7 @@ import {
   Filter,
   Target,
   ChevronRight,
+  Bookmark,
 } from "lucide-react";
 import {
   Table,
@@ -46,6 +47,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Dialog } from "@/components/ui/dialog";
 import {
   Card,
   CardContent,
@@ -77,8 +79,8 @@ interface Startup {
   email?: string;
   phone?: string;
   status: "pending" | "approved" | "rejected";
-  createdBy: string;
-  approvedBy?: string;
+  createdBy: string | { _id: string; email: string; name?: string };
+  approvedBy?: string | { _id: string; email: string; name?: string };
   createdAt: string;
   updatedAt: string;
 }
@@ -139,7 +141,7 @@ const getStageColor = (stage: Startup["stage"]) => {
 
 export default function StartupsPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const isAdmin = user?.role === "admin";
   const [startups, setStartups] = useState<Startup[]>([]);
   const [loading, setLoading] = useState(true);
@@ -149,10 +151,97 @@ export default function StartupsPage() {
   const [stageFilter, setStageFilter] = useState("All");
   const [sortField, setSortField] = useState<SortField>("createdAt");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
-  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
+  const [watchlistLoading, setWatchlistLoading] = useState<Set<string>>(new Set());
+  const [startupToRemove, setStartupToRemove] = useState<string | null>(null);
+  const [localWatchlist, setLocalWatchlist] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (user?.watchlist) {
+      setLocalWatchlist(user.watchlist);
+    }
+  }, [user?.watchlist]);
 
   const itemsPerPage = 9;
+
+  const handleToggleWatchlist = async (e: React.MouseEvent, startupId: string) => {
+    e.stopPropagation();
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    const isBookmarked = localWatchlist.includes(startupId);
+
+    if (isBookmarked) {
+      setStartupToRemove(startupId);
+      return;
+    }
+
+    // Add to watchlist optimistically
+    try {
+      setWatchlistLoading(prev => new Set(prev).add(startupId));
+      setLocalWatchlist(prev => [...prev, startupId]);
+      
+      const token = localStorage.getItem("token");
+      
+      const res = await fetch(`/api/watchlist/${startupId}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        await refreshUser();
+      } else {
+        // Revert on error
+        setLocalWatchlist(prev => prev.filter(id => id !== startupId));
+      }
+    } catch (error) {
+      console.error("Failed to update watchlist", error);
+      setLocalWatchlist(prev => prev.filter(id => id !== startupId));
+    } finally {
+      setWatchlistLoading(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(startupId);
+        return newSet;
+      });
+    }
+  };
+
+  const confirmRemoveWatchlist = async () => {
+    if (!startupToRemove) return;
+    
+    const targetId = startupToRemove;
+    setStartupToRemove(null);
+    
+    // Optimistically remove
+    setLocalWatchlist(prev => prev.filter(id => id !== targetId));
+    
+    try {
+      setWatchlistLoading(prev => new Set(prev).add(targetId));
+      const token = localStorage.getItem("token");
+      
+      const res = await fetch(`/api/watchlist/${targetId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.ok) {
+        await refreshUser();
+      } else {
+        // Revert on error
+        setLocalWatchlist(prev => [...prev, targetId]);
+      }
+    } catch (error) {
+      console.error("Failed to remove from watchlist", error);
+      setLocalWatchlist(prev => [...prev, targetId]);
+    } finally {
+      setWatchlistLoading(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(targetId);
+        return newSet;
+      });
+    }
+  };
 
   const loadStartups = async () => {
     try {
@@ -667,20 +756,29 @@ export default function StartupsPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 perspective-[2000px]"
             >
               {paginatedStartups.map((startup, index) => (
                 <motion.div
                   key={startup._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 + index * 0.1 }}
-                  whileHover={{ scale: 1.02, y: -5 }}
-                  className="apple-glass rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 group cursor-pointer min-h-[300px]"
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: 0.2 + index * 0.05, type: "spring", stiffness: 100 }}
+                  whileHover={{ 
+                    scale: 1.03, 
+                    y: -10, 
+                    rotateX: 2, 
+                    rotateY: -2,
+                    boxShadow: "0 30px 60px -15px rgba(0,0,0,0.3)" 
+                  }}
+                  className="apple-glass rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:border-primary/40 transition-all duration-300 group cursor-pointer min-h-[300px] relative overflow-hidden"
                   onClick={() =>
                     router.push(`/dashboard/startups/${startup._id}`)
                   }
                 >
+                  {/* Glass Glare Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500 rounded-2xl" />
+
                   {/* Header Section */}
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center group-hover:from-primary/30 group-hover:to-accent/30 transition-all duration-300 shadow-lg">
@@ -695,6 +793,19 @@ export default function StartupsPage() {
                         <span>{startup.city}</span>
                       </div>
                     </div>
+                    {/* Bookmark Button */}
+                    <button
+                      onClick={(e) => handleToggleWatchlist(e, startup._id)}
+                      disabled={watchlistLoading.has(startup._id)}
+                      className={`relative z-10 p-2.5 rounded-full transition-all duration-300 shadow-sm disabled:opacity-50 ${
+                        localWatchlist.includes(startup._id) 
+                          ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-110 border border-primary scale-105" 
+                          : "bg-background/80 text-muted-foreground hover:bg-primary/10 hover:text-primary hover:scale-110 border border-border/50"
+                      }`}
+                      aria-label={localWatchlist.includes(startup._id) ? "Remove Bookmark" : "Add Bookmark"}
+                    >
+                      <Bookmark className={`w-4 h-4 transition-all duration-300 ${localWatchlist.includes(startup._id) ? "fill-current" : ""}`} />
+                    </button>
                   </div>
 
                   {/* Stage Badge */}
@@ -884,6 +995,35 @@ export default function StartupsPage() {
           </>
         )}
       </motion.div>
+
+      {/* Confirmation Dialog for Watchlist Removal */}
+      <Dialog
+        isOpen={!!startupToRemove}
+        onClose={() => setStartupToRemove(null)}
+        title="Remove from Watchlist"
+      >
+        <div className="space-y-4">
+          <p className="text-muted-foreground">
+            Are you sure you want to remove this startup from your watchlist?
+          </p>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setStartupToRemove(null)}
+              disabled={watchlistLoading.size > 0}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmRemoveWatchlist}
+              disabled={watchlistLoading.size > 0}
+            >
+              Remove
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }

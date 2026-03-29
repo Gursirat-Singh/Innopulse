@@ -26,6 +26,8 @@ import {
   BarChart3,
   LineChart,
   PieChart,
+  History,
+  ArrowRight,
 } from "lucide-react"
 import {
   LineChart as RechartsLineChart,
@@ -55,6 +57,14 @@ import {
 import Logo from "@/components/logo"
 import { getStartupById } from "@/lib/services/startup.services"
 
+interface ChangeHistoryEntry {
+  changedAt: string
+  changedBy: string | { _id: string; email: string; name?: string }
+  changedFields: string[]
+  previousValues: Record<string, any>
+  newValues: Record<string, any>
+}
+
 interface Startup {
   _id: string
   name: string
@@ -68,10 +78,13 @@ interface Startup {
   email?: string
   phone?: string
   status: "pending" | "approved" | "rejected"
-  createdBy: string
-  approvedBy?: string
+  createdBy: string | { _id: string; email: string; name?: string }
+  approvedBy?: string | { _id: string; email: string; name?: string }
   createdAt: string
   updatedAt: string
+  lastActivityAt?: string
+  isStale?: boolean
+  changeHistory?: ChangeHistoryEntry[]
 }
 
 const formatDate = (dateString: string) => {
@@ -758,6 +771,71 @@ export default function StartupDetailsPage() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Changelog Timeline Section */}
+          {startup.changeHistory && startup.changeHistory.length > 0 && (
+            <div className={isPdfMode ? 'page-break-inside-avoid section-spacing' : ''}>
+              <div className="mb-6">
+                <h2 className={`text-2xl font-bold flex items-center gap-3 ${isPdfMode ? 'text-gray-900 border-b-2 border-blue-600 pb-2 mb-6' : 'text-foreground'}`}>
+                  <div className="w-8 h-8 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-lg flex items-center justify-center">
+                    <History className="w-4 h-4 text-amber-600" />
+                  </div>
+                  Changelog
+                </h2>
+                <p className={`text-muted-foreground ${isPdfMode ? 'text-gray-600' : ''}`}>Record of all edits made to this startup</p>
+              </div>
+
+              <Card className={`apple-glass border-0 shadow-xl ${isPdfMode ? 'bg-white shadow-none rounded-none border-t-2 border-gray-900 pt-6' : ''}`}>
+                <CardContent className="p-6">
+                  <div className="space-y-0">
+                    {[...startup.changeHistory].reverse().map((entry, index) => (
+                      <div key={index} className="relative pl-8 pb-8 last:pb-0">
+                        {/* Timeline line */}
+                        {index < startup.changeHistory!.length - 1 && (
+                          <div className="absolute left-[11px] top-6 bottom-0 w-0.5 bg-border/50" />
+                        )}
+                        {/* Timeline dot */}
+                        <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+                          <Edit className="w-3 h-3 text-white" />
+                        </div>
+                        {/* Content */}
+                        <div className={`p-4 rounded-xl ${isPdfMode ? 'bg-gray-50 border border-gray-200' : 'bg-card/30 hover:bg-card/50 transition-colors'}`}>
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Clock className="w-3.5 h-3.5" />
+                              <span>
+                                {new Date(entry.changedAt).toLocaleDateString('en-IN', {
+                                  day: 'numeric', month: 'short', year: 'numeric',
+                                  hour: '2-digit', minute: '2-digit'
+                                })}
+                              </span>
+                            </div>
+                            <Badge variant="secondary" className="text-xs bg-amber-500/10 text-amber-700 border-amber-500/20">
+                              {entry.changedFields.length} field{entry.changedFields.length > 1 ? 's' : ''} changed
+                            </Badge>
+                          </div>
+                          <div className="space-y-2">
+                            {entry.changedFields.map((field) => (
+                              <div key={field} className={`flex items-center gap-3 text-sm p-2 rounded-lg ${isPdfMode ? 'bg-white' : 'bg-background/50'}`}>
+                                <span className="font-medium text-foreground capitalize min-w-[80px]">{field}:</span>
+                                <span className="text-red-500 line-through">
+                                  {String(entry.previousValues?.[field] ?? 'N/A')}
+                                </span>
+                                <ArrowRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                                <span className="text-green-600 font-medium">
+                                  {String(entry.newValues?.[field] ?? 'N/A')}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
           </motion.div>
 
           {/* Sidebar Column - Hidden in PDF mode */}

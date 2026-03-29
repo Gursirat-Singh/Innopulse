@@ -76,8 +76,8 @@ interface Startup {
   email?: string;
   phone?: string;
   status: "pending" | "approved" | "rejected";
-  createdBy: string;
-  approvedBy?: string;
+  createdBy: string | { _id: string; email: string; name?: string };
+  approvedBy?: string | { _id: string; email: string; name?: string };
   createdAt: string;
   updatedAt: string;
 }
@@ -622,19 +622,27 @@ export default function PendingStartupsPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 perspective-[2000px]"
               style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}
             >
               {paginatedStartups.map((startup, index) => (
                 <motion.div
                   key={startup._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 + index * 0.1 }}
-                  whileHover={{ scale: 1.02, y: -5 }}
-                  className="apple-glass rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 group"
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ delay: 0.2 + index * 0.05, type: "spring", stiffness: 100 }}
+                  whileHover={{ 
+                    scale: 1.03, 
+                    y: -10, 
+                    rotateX: 2, 
+                    rotateY: -2,
+                    boxShadow: "0 30px 60px -15px rgba(0,0,0,0.3)" 
+                  }}
+                  className="apple-glass rounded-2xl p-6 shadow-xl hover:shadow-2xl hover:border-primary/40 transition-all duration-300 group cursor-pointer min-h-[300px] relative overflow-hidden"
                 >
+                  {/* Glass Glare Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500 rounded-2xl" />
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-14 h-14 bg-gradient-to-br from-orange-500/20 to-orange-600/20 rounded-2xl flex items-center justify-center group-hover:from-orange-30 group-hover:to-orange-30 transition-all duration-300 shadow-lg">
                       <Clock className="w-7 h-7 text-orange-600" />

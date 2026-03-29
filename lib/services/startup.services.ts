@@ -1,5 +1,13 @@
 import api from "@/lib/api"
 
+export type ChangeHistoryEntry = {
+  changedAt: string
+  changedBy: string | { _id: string; email: string; name?: string }
+  changedFields: string[]
+  previousValues: Record<string, any>
+  newValues: Record<string, any>
+}
+
 export type Startup = {
   _id: string
   name: string
@@ -13,10 +21,23 @@ export type Startup = {
   email?: string
   phone?: string
   status: "pending" | "approved" | "rejected"
-  createdBy: string
-  approvedBy?: string
+  createdBy: string | { _id: string; email: string; name?: string }
+  approvedBy?: string | { _id: string; email: string; name?: string }
   createdAt: string
   updatedAt: string
+  lastActivityAt?: string
+  isStale?: boolean
+  changeHistory?: ChangeHistoryEntry[]
+}
+
+export type CachedStats = {
+  totalStartups: number
+  totalFunding: number
+  totalEmployees: number
+  staleCount: number
+  sectorDistribution: { sector: string; count: number; funding: number }[]
+  stageBreakdown: { stage: string; count: number }[]
+  lastRefreshedAt: string | null
 }
 
 // ✅ Public — approved startups only
@@ -56,6 +77,23 @@ export const rejectStartup = async (id: string) => {
 // 👑 Admin only
 export const deleteStartup = async (id: string) => {
   return api.delete(`/startups/${id}`)
+}
+
+// 👑 Admin only — edit startup fields
+export const updateStartup = async (id: string, updates: Partial<Startup>) => {
+  return api.patch(`/startups/${id}`, { action: 'edit', updates })
+}
+
+// 👑 Admin only — get stale startups
+export const getStaleStartups = async (): Promise<Startup[]> => {
+  const res = await api.get("/startups/stale")
+  return res.data
+}
+
+// 📊 Public — cached analytics
+export const getCachedStats = async (): Promise<CachedStats> => {
+  const res = await api.get("/stats")
+  return res.data
 }
 
 // 👤 User

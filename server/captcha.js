@@ -1,5 +1,6 @@
 import crypto from "crypto";
-import { captchaStore } from "../lib/captcha-store.js";
+
+const captchaStore = new Map();
 
 /**
  * Generate a random alphanumeric CAPTCHA string

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
 import connectDB from '@/lib/mongodb'
 import Startup from '@/server/models/startup'
+import { refreshCachedStats } from '@/lib/refreshStats'
+import { rateLimit, getIP } from '@/lib/rateLimiter'
 
 export async function GET(
   request: NextRequest,
@@ -89,14 +91,97 @@ export async function PATCH(
     const body = await request.json()
     const { action } = body
 
-    if (!action || !['approve', 'reject'].includes(action)) {
+    if (!action || !['approve', 'reject', 'edit'].includes(action)) {
       return NextResponse.json(
-        { error: 'Invalid action. Must be "approve" or "reject"' },
+        { error: 'Invalid action. Must be "approve", "reject", or "edit"' },
         { status: 400 }
       )
     }
 
-    // Find and update startup
+    // Rate limiting for admin approval actions (20 requests per 15 mins)
+    if (action === 'approve') {
+      const ip = getIP(request);
+      const rl = await rateLimit(`admin_approve_${ip}`, 20, 15 * 60 * 1000);
+      if (!rl.success) {
+        return NextResponse.json(
+          { error: "Rate limit exceeded for approvals. Please try again later." },
+          { status: 429, headers: { "X-RateLimit-Reset": rl.reset.toString() } }
+        );
+      }
+    }
+
+    /* ---------- EDIT ACTION ---------- */
+    if (action === 'edit') {
+      const { updates } = body
+
+      if (!updates || typeof updates !== 'object') {
+        return NextResponse.json(
+          { error: 'Updates object is required for edit action' },
+          { status: 400 }
+        )
+      }
+
+      const startup = await Startup.findById(id)
+      if (!startup) {
+        return NextResponse.json(
+          { error: "Startup not found" },
+          { status: 404 }
+        )
+      }
+
+      // Compute diff: only track fields that actually changed
+      const editableFields = ['name', 'sector', 'city', 'stage', 'funding', 'employees', 'revenueRange', 'website', 'email', 'phone']
+      const changedFields: string[] = []
+      const previousValues: Record<string, any> = {}
+      const newValues: Record<string, any> = {}
+
+      for (const field of editableFields) {
+        if (updates[field] !== undefined && String(updates[field]) !== String(startup[field] ?? '')) {
+          changedFields.push(field)
+          previousValues[field] = startup[field]
+          newValues[field] = updates[field]
+          ;(startup as any)[field] = updates[field]
+        }
+      }
+
+      if (changedFields.length === 0) {
+        return NextResponse.json(
+          { message: 'No fields changed' },
+          { status: 200 }
+        )
+      }
+
+      // Push history entry
+      startup.changeHistory.push({
+        changedAt: new Date(),
+        changedBy: decoded.id,
+        changedFields,
+        previousValues,
+        newValues,
+      })
+
+      // Reset stale tracking
+      startup.lastActivityAt = new Date()
+      startup.isStale = false
+
+      await startup.save()
+
+      // Refresh cached stats
+      await refreshCachedStats()
+
+      const serialized = {
+        ...startup.toObject(),
+        _id: startup._id.toString()
+      }
+
+      return NextResponse.json({
+        message: 'Startup updated successfully',
+        startup: serialized,
+        changedFields,
+      })
+    }
+
+    /* ---------- APPROVE / REJECT ACTION ---------- */
     const updateData: any = {
       status: action === 'approve' ? 'approved' : 'rejected',
       updatedAt: new Date()
@@ -104,6 +189,8 @@ export async function PATCH(
 
     if (action === 'approve') {
       updateData.approvedBy = decoded.id
+      updateData.lastActivityAt = new Date()
+      updateData.isStale = false
     }
 
     const startup = await Startup.findByIdAndUpdate(
@@ -119,6 +206,9 @@ export async function PATCH(
         { status: 404 }
       )
     }
+
+    // Refresh cached stats on approval/rejection
+    await refreshCachedStats()
 
     // Ensure _id is a string
     const serializedStartup = {

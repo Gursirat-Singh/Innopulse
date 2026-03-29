@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema(
     resetTokenExpiry: {
       type: Date,
     },
+    watchlist: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Startup"
+    }],
   },
   { timestamps: true }
 )

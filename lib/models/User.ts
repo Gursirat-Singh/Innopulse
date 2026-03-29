@@ -46,6 +46,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    watchlist: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Startup'
+    }],
   },
   { timestamps: true }
 )

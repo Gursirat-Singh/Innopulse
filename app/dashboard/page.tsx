@@ -22,7 +22,7 @@ import {
   Calendar,
   Award
 } from "lucide-react"
-import { getApprovedStartups, type Startup } from "@/lib/services/startup.services"
+import { getApprovedStartups, getCachedStats, type Startup, type CachedStats } from "@/lib/services/startup.services"
 import { formatIndianCurrency, formatIndianNumber } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
@@ -37,20 +37,25 @@ export default function DashboardOverview() {
   const isAdmin = user?.role === 'admin'
   const [startups, setStartups] = useState<Startup[]>([])
   const [loading, setLoading] = useState(true)
+  const [cachedStats, setCachedStats] = useState<CachedStats | null>(null)
 
   useEffect(() => {
-    const fetchStartups = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getApprovedStartups()
+        const [data, stats] = await Promise.all([
+          getApprovedStartups(),
+          getCachedStats().catch(() => null),
+        ])
         setStartups(data)
+        setCachedStats(stats)
       } catch (error) {
-        console.error("Failed to fetch startups:", error)
+        console.error("Failed to fetch data:", error)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchStartups()
+    fetchData()
   }, [])
   const analytics = useMemo(() => {
     if (!startups.length) {
@@ -104,10 +109,10 @@ export default function DashboardOverview() {
     });
 
     const kpis = [
-      { title: "Total Startups Tracked", value: formatIndianNumber(startups.length), delta: "Database", deltaType: "positive", icon: Building2, description: "All registered startups" },
+      { title: "Total Startups Tracked", value: formatIndianNumber(cachedStats?.totalStartups ?? startups.length), delta: "Database", deltaType: "positive", icon: Building2, description: "All registered startups" },
       { title: "Active Startups", value: formatIndianNumber(startups.length), delta: "Live", deltaType: "positive", icon: Activity, description: "Currently operational" },
-      { title: "Total Funding Raised", value: formatIndianCurrency(totalFunding), delta: "Sum", deltaType: "positive", icon: DollarSign, description: "Since inception" },
-      { title: "Jobs Created", value: formatIndianNumber(totalJobs), delta: "Sum", deltaType: "positive", icon: Users, description: "Confirmed headcount" },
+      { title: "Total Funding Raised", value: formatIndianCurrency(cachedStats?.totalFunding ?? totalFunding), delta: "Sum", deltaType: "positive", icon: DollarSign, description: "Since inception" },
+      { title: "Jobs Created", value: formatIndianNumber(cachedStats?.totalEmployees ?? totalJobs), delta: "Sum", deltaType: "positive", icon: Users, description: "Confirmed headcount" },
       { title: "New Startups Added", value: formatIndianNumber(newStartups), delta: "This Month", deltaType: "positive", icon: Target, description: "Time-filtered" }
     ];
 
@@ -187,7 +192,7 @@ export default function DashboardOverview() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8"
+        className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8 perspective-[2000px]"
       >
         {kpis.map((kpi, index) => (
           <motion.div
@@ -195,9 +200,17 @@ export default function DashboardOverview() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1 + index * 0.1 }}
-            whileHover={{ scale: 1.02, y: -2 }}
-            className="glass-strong rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-border/50"
+            whileHover={{ 
+              scale: 1.03, 
+              y: -8, 
+              rotateX: 2, 
+              rotateY: -2,
+              boxShadow: "0 30px 60px -15px rgba(0,0,0,0.3)" 
+            }}
+            className="glass-strong rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-border/50 relative overflow-hidden group cursor-default hover:border-primary/40"
           >
+            {/* Glass Glare */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500 rounded-2xl" />
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl flex items-center justify-center">
                 <kpi.icon className="w-6 h-6 text-primary" />
@@ -233,8 +246,9 @@ export default function DashboardOverview() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="glass-strong rounded-2xl p-6 shadow-lg border border-border/50"
+            className="glass-strong rounded-2xl p-6 shadow-lg border border-border/50 hover:shadow-2xl hover:border-primary/30 transition-all duration-500 hover:-translate-y-1 relative overflow-hidden group"
           >
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500 rounded-2xl" />
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-xl flex items-center justify-center">
                 <Zap className="w-5 h-5 text-blue-600" />
@@ -291,7 +305,7 @@ export default function DashboardOverview() {
           >
 
             {/* Top Sectors */}
-            <Card className="glass-strong shadow-lg border border-border/50">
+            <Card className="glass-strong shadow-lg border border-border/50 transition-all duration-500 hover:shadow-2xl hover:border-primary/30 hover:-translate-y-1 group">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-lg flex items-center justify-center">
@@ -333,7 +347,7 @@ export default function DashboardOverview() {
             </Card>
 
             {/* Top Cities */}
-            <Card className="glass-strong shadow-lg border border-border/50">
+            <Card className="glass-strong shadow-lg border border-border/50 transition-all duration-500 hover:shadow-2xl hover:border-primary/30 hover:-translate-y-1 group">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-lg flex items-center justify-center">
@@ -384,8 +398,9 @@ export default function DashboardOverview() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
-            className="glass-strong rounded-2xl p-6 shadow-lg border border-border/50"
+            className="glass-strong rounded-2xl p-6 shadow-lg border border-border/50 transition-all duration-500 hover:shadow-2xl hover:border-primary/30 hover:-translate-y-1 relative overflow-hidden group"
           >
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500 rounded-2xl" />
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl flex items-center justify-center">
                 <BarChart3 className="w-5 h-5 text-purple-600" />
@@ -436,8 +451,9 @@ export default function DashboardOverview() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6 }}
-            className="glass-strong rounded-2xl p-6 shadow-lg border border-border/50"
+            className="glass-strong rounded-2xl p-6 shadow-lg border border-border/50 transition-all duration-500 hover:shadow-2xl hover:border-primary/30 hover:-translate-y-1 relative overflow-hidden group"
           >
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500 rounded-2xl" />
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-xl flex items-center justify-center">
                 <AlertTriangle className="w-5 h-5 text-amber-600" />
