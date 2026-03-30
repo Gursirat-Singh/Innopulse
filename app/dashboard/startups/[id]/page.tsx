@@ -1,4 +1,5 @@
 "use client"
+// Client-side PDF generation fix v2
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
