@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import jwt from "jsonwebtoken"
 import connectToDatabase from "@/lib/mongodb"
 import Startup from "@/server/models/startup"
+import User from "@/lib/models/User"
 
 export async function GET(request: NextRequest) {
   try {

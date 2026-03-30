@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
 import connectDB from '@/lib/mongodb'
 import Startup from '@/server/models/startup'
+import User from '@/lib/models/User'
 import { refreshCachedStats } from '@/lib/refreshStats'
 import { rateLimit, getIP } from '@/lib/rateLimiter'
 
