@@ -1,4 +1,5 @@
 import User from "@/lib/models/User";
+import PendingUser from "@/lib/models/PendingUser";
 import bcrypt from "bcryptjs";
 import connectToDatabase from "@/lib/mongodb";
 import { NextRequest, NextResponse } from "next/server";
@@ -44,27 +45,21 @@ export async function POST(req: NextRequest) {
 
     console.log("🔍 Signup initiation request for:", email);
 
-    // Check if user already exists and is verified
+    // Check if user already exists in main collection
     const existingUser = await User.findOne({ email });
-    if (existingUser && existingUser.isEmailVerified) {
+    if (existingUser) {
       return NextResponse.json(
         { message: "An account with this email already exists" },
         { status: 400 }
       );
     }
 
-    // If user exists but not verified, allow re-initiation (cleanup old data)
-    if (existingUser && !existingUser.isEmailVerified) {
-      // Clear any existing OTP data
-      existingUser.otp = undefined;
-      existingUser.otpExpiry = undefined;
-      existingUser.isOtpVerified = false;
-      await existingUser.save();
-    }
+    // Check if there's an existing pending registration
+    const existingPending = await PendingUser.findOne({ email });
 
     // Rate limiting: prevent multiple OTP requests within 1 minute
     const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
-    if (existingUser && existingUser.otpExpiry && existingUser.otpExpiry > oneMinuteAgo) {
+    if (existingPending && existingPending.otpExpiry && existingPending.otpExpiry > oneMinuteAgo) {
       console.log("⚠️ Rate limited: OTP requested too recently");
       return NextResponse.json({
         message: "Please wait before requesting another verification code",
@@ -77,27 +72,26 @@ export async function POST(req: NextRequest) {
 
     // Hash OTP before storing
     const hashedOTP = await bcrypt.hash(otp, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Store temporary signup data
-    if (existingUser) {
-      // Update existing unverified user
-      existingUser.password = await bcrypt.hash(password, 10); // Store hashed password temporarily
-      existingUser.otp = hashedOTP;
-      existingUser.otpExpiry = otpExpiry;
-      existingUser.isOtpVerified = false;
-      await existingUser.save();
-      console.log("🔄 Updated existing user with OTP data");
+    if (existingPending) {
+      // Update existing pending user
+      existingPending.password = hashedPassword; 
+      existingPending.otp = hashedOTP;
+      existingPending.otpExpiry = otpExpiry;
+      existingPending.createdAt = new Date(); // Refresh TTL
+      await existingPending.save();
+      console.log("🔄 Updated existing pending user with OTP data");
     } else {
-      // Create temporary user record (not verified yet)
-      const newUser = await User.create({
+      // Create pending user record
+      const newPendingUser = await PendingUser.create({
         email,
-        password: await bcrypt.hash(password, 10), // Store hashed password temporarily
+        password: hashedPassword,
         otp: hashedOTP,
         otpExpiry,
-        isEmailVerified: false,
-        isOtpVerified: false,
       });
-      console.log("🆕 Created new user with OTP data:", newUser._id);
+      console.log("🆕 Created new pending user with OTP data:", newPendingUser._id);
     }
 
     console.log("🔑 OTP generated, hashed and stored for signup");

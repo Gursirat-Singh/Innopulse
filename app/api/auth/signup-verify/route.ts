@@ -1,4 +1,5 @@
 import User from "@/lib/models/User";
+import PendingUser from "@/lib/models/PendingUser";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import connectToDatabase from "@/lib/mongodb";
@@ -26,56 +27,20 @@ export async function POST(req: NextRequest) {
 
     console.log("🔍 Signup verification request for:", email);
 
-    // Debug: Check total users in database
-    const totalUsers = await User.countDocuments();
-    console.log("📊 Total users in database:", totalUsers);
+    // Debug: Check total pending users in database
+    const totalPendingUsers = await PendingUser.countDocuments();
+    console.log("📊 Total pending users in database:", totalPendingUsers);
 
-    // Debug: Check users with OTP data
-    const usersWithOtp = await User.find({ otp: { $exists: true } }).select('email otpExpiry isEmailVerified');
-    console.log("🔑 Users with OTP data:", usersWithOtp.map(u => ({
-      email: u.email,
-      otpExpiry: u.otpExpiry,
-      isEmailVerified: u.isEmailVerified
-    })));
-
-    // Find user with valid OTP and not yet verified
-    const user = await User.findOne({
+    // Find pending user with valid OTP and not yet verified
+    const targetPendingUser = await PendingUser.findOne({
       email: email.toLowerCase(),
-      otpExpiry: { $gt: new Date() },
-      isEmailVerified: false
+      otpExpiry: { $gt: new Date() }
     });
 
-    console.log("👤 Found user with exact criteria:", !!user);
+    console.log("👤 Found pending user with exact criteria:", !!targetPendingUser);
 
-    // If not found with exact criteria, try more lenient search
-    let targetUser = user;
-    if (!targetUser) {
-      console.log("🔄 User not found with exact criteria, trying broader search...");
-      const usersWithEmail = await User.find({ email: email.toLowerCase() });
-      console.log("📊 Users found with this email:", usersWithEmail.length);
-
-      for (const u of usersWithEmail) {
-        console.log("👤 User details:", {
-          id: u._id,
-          email: u.email,
-          isEmailVerified: u.isEmailVerified,
-          hasOtp: !!u.otp,
-          otpExpiry: u.otpExpiry,
-          currentTime: new Date(),
-          isExpired: u.otpExpiry ? u.otpExpiry < new Date() : true
-        });
-
-        // Check if this user has a valid OTP
-        if (u.otp && u.otpExpiry && u.otpExpiry > new Date() && !u.isEmailVerified) {
-          targetUser = u;
-          console.log("✅ Found valid user for OTP verification");
-          break;
-        }
-      }
-    }
-
-    if (!targetUser || !targetUser.otp) {
-      console.log("❌ No valid user found for OTP verification");
+    if (!targetPendingUser || !targetPendingUser.otp) {
+      console.log("❌ No valid pending user found for OTP verification");
       return NextResponse.json(
         { message: "Invalid or expired verification code. Please request a new one." },
         { status: 400 }
@@ -83,10 +48,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify OTP securely
-    const isValidOTP = await bcrypt.compare(otp, targetUser.otp);
+    const isValidOTP = await bcrypt.compare(otp, targetPendingUser.otp);
     console.log("🔍 OTP comparison result:", isValidOTP);
-    console.log("📝 Provided OTP:", `"${otp}"`);
-    console.log("🔐 Stored OTP hash exists:", !!targetUser.otp);
 
     if (!isValidOTP) {
       console.log("❌ OTP verification failed - hash comparison failed");
@@ -99,25 +62,27 @@ export async function POST(req: NextRequest) {
     console.log("✅ OTP verification successful");
 
     // Complete account creation
-    targetUser.isEmailVerified = true;
-    targetUser.isOtpVerified = true;
-    // Clear OTP data to prevent reuse
-    targetUser.otp = undefined;
-    targetUser.otpExpiry = undefined;
+    const newUser = await User.create({
+      email: targetPendingUser.email,
+      password: targetPendingUser.password, // Already hashed in PendingUser
+      isEmailVerified: true,
+      isOtpVerified: true,
+    });
 
-    await targetUser.save();
+    // Delete the pending user record now that it is successfully moved to User
+    await PendingUser.deleteOne({ _id: targetPendingUser._id });
 
     console.log("✅ Account created and email verified successfully");
 
     // Generate JWT token for automatic login
     const token = jwt.sign(
-      { id: targetUser._id, role: targetUser.role },
+      { id: newUser._id, role: newUser.role || 'viewer' },
       process.env.JWT_SECRET!,
       { expiresIn: "15m" }
     );
 
     const refreshToken = jwt.sign(
-      { id: targetUser._id, role: targetUser.role },
+      { id: newUser._id, role: newUser.role || 'viewer' },
       process.env.JWT_SECRET!,
       { expiresIn: "7d" }
     );
