@@ -6,6 +6,13 @@ import User from "@/lib/models/User";
 
 export async function POST(req: NextRequest) {
   try {
+    // Validate JWT_SECRET is configured before doing any work
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error("FATAL: JWT_SECRET is not configured");
+      return NextResponse.json({ message: "Server configuration error" }, { status: 500 });
+    }
+
     const { email, password, captchaId, captchaAnswer } = await req.json();
 
     if (!email || !password) {
@@ -18,10 +25,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      const decoded = jwt.verify(
-        captchaId,
-        process.env.JWT_SECRET || 'fallback_secret_development'
-      ) as { text: string };
+      const decoded = jwt.verify(captchaId, secret) as { text: string };
 
       if (decoded.text !== String(captchaAnswer).toLowerCase()) {
         return NextResponse.json({ message: "Invalid CAPTCHA. Please try again." }, { status: 400 });
@@ -43,9 +47,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
     }
 
-    // 3. Issue Authentication Tokens sharing the precise Serverless JWT_SECRET
-    const secret = process.env.JWT_SECRET || 'fallback_secret_development';
-
+    // 3. Issue Authentication Tokens with validated secret
     const token = jwt.sign(
       { id: user._id, role: user.role },
       secret,

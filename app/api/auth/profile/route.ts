@@ -5,6 +5,13 @@ import User from '@/lib/models/User'
 
 export async function GET(request: NextRequest) {
   try {
+    // Validate JWT_SECRET is configured
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error("FATAL: JWT_SECRET is not configured");
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+    }
+
     await connectDB()
 
     // Get token from cookies or Authorization header
@@ -20,7 +27,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string, role: string }
+    const decoded = jwt.verify(token, secret) as { id: string, role: string }
 
     // Get user data
     const user = await User.findById(decoded.id).select('-password -resetToken -resetTokenExpiry -otp -otpExpiry')

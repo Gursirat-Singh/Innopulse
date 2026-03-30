@@ -39,6 +39,13 @@ function generateCaptchaSVG(text: string) {
 
 export async function GET() {
   try {
+    // Validate JWT_SECRET is configured
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error("FATAL: JWT_SECRET is not configured");
+      return NextResponse.json({ message: "Server configuration error" }, { status: 500 });
+    }
+
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let text = '';
     for (let i = 0; i < 6; i++) {
@@ -48,7 +55,7 @@ export async function GET() {
     // Wrap the captcha inside a stateless JWT so Serverless can verify it anywhere without Memory Stores
     const captchaId = jwt.sign(
       { text: text.toLowerCase() },
-      process.env.JWT_SECRET || 'fallback_secret_development',
+      secret,
       { expiresIn: '5m' }
     );
 

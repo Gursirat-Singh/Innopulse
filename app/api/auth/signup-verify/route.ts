@@ -61,6 +61,16 @@ export async function POST(req: NextRequest) {
 
     console.log("✅ OTP verification successful");
 
+    // Validate JWT_SECRET BEFORE creating the user to prevent orphaned accounts
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error("FATAL: JWT_SECRET is not configured");
+      return NextResponse.json(
+        { message: "Server configuration error" },
+        { status: 500 }
+      );
+    }
+
     // Complete account creation — use upsert to handle legacy unverified users
     // If an old unverified user record exists from before the PendingUser migration,
     // update it instead of creating a duplicate (which would cause E11000 duplicate key error)
@@ -84,16 +94,16 @@ export async function POST(req: NextRequest) {
 
     console.log("✅ Account created and email verified successfully");
 
-    // Generate JWT token for automatic login
+    // Generate JWT token for automatic login (secret already validated above)
     const token = jwt.sign(
       { id: newUser._id, role: newUser.role || 'viewer' },
-      process.env.JWT_SECRET!,
+      secret,
       { expiresIn: "15m" }
     );
 
     const refreshToken = jwt.sign(
       { id: newUser._id, role: newUser.role || 'viewer' },
-      process.env.JWT_SECRET!,
+      secret,
       { expiresIn: "7d" }
     );
 
