@@ -2,12 +2,22 @@ import mongoose from "mongoose"
 import dotenv from "dotenv"
 import Startup from "../models/startup.js"
 import User from "../models/User.js"
+import CachedStats from "../models/CachedStats.js"
+import path from "path";
+import { fileURLToPath } from "url";
 
-dotenv.config({ path: "../.env.local" })
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config()
 
 const seedStartups = async () => {
   try {
-    const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/innopulse"
+    const MONGO_URI = process.env.MONGO_URI
+    if (!MONGO_URI) {
+      throw new Error("MONGO_URI is not defined in .env file")
+    }
     await mongoose.connect(MONGO_URI)
     console.log("MongoDB connected for seeding")
 
@@ -75,8 +85,61 @@ const seedStartups = async () => {
 
 
     await Startup.insertMany(startups)
-
     console.log("✅ Approved startups seeded successfully")
+
+    // 4️⃣ Refresh Stats
+    console.log("📊 Refreshing cached statistics...")
+    const approved = await Startup.find({ status: "approved" })
+    let totalFunding = 0
+    let totalEmployees = 0
+    const sectorMap = {}
+    const stageMap = {}
+
+    approved.forEach((s) => {
+      totalFunding += Number(s.funding) || 0
+      totalEmployees += Number(s.employees) || 0
+
+      const sec = s.sector || "Unknown"
+      if (!sectorMap[sec]) sectorMap[sec] = { count: 0, funding: 0 }
+      sectorMap[sec].count++
+      sectorMap[sec].funding += Number(s.funding) || 0
+
+      const stg = s.stage || "Unknown"
+      if (!stageMap[stg]) stageMap[stg] = 0
+      stageMap[stg]++
+    })
+
+    const sectorDistribution = Object.entries(sectorMap).map(([sector, d]) => ({
+      sector,
+      count: d.count,
+      funding: d.funding,
+    }))
+
+    const stageBreakdown = Object.entries(stageMap).map(([stage, count]) => ({
+      stage,
+      count,
+    }))
+
+    const staleCount = await Startup.countDocuments({
+      status: "approved",
+      isStale: true,
+    })
+
+    await CachedStats.findOneAndUpdate(
+      {},
+      {
+        totalStartups: approved.length,
+        totalFunding,
+        totalEmployees,
+        staleCount,
+        sectorDistribution,
+        stageBreakdown,
+        lastRefreshedAt: new Date(),
+      },
+      { upsert: true, new: true }
+    )
+    console.log("✅ Cached statistics updated successfully")
+
     process.exit()
   } catch (error) {
     console.error("❌ Seeding failed:", error.message)

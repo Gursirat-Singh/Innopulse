@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 import connectToDatabase from "@/lib/mongodb"
 import { getAggregatedSectors } from "@/lib/services/sector.services"
 import SectorsPageHeader from "./components/SectorsPageHeader"

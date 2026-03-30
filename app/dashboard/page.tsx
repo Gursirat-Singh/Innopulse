@@ -109,11 +109,46 @@ export default function DashboardOverview() {
     });
 
     const kpis = [
-      { title: "Total Startups Tracked", value: formatIndianNumber(cachedStats?.totalStartups ?? startups.length), delta: "Database", deltaType: "positive", icon: Building2, description: "All registered startups" },
-      { title: "Active Startups", value: formatIndianNumber(startups.length), delta: "Live", deltaType: "positive", icon: Activity, description: "Currently operational" },
-      { title: "Total Funding Raised", value: formatIndianCurrency(cachedStats?.totalFunding ?? totalFunding), delta: "Sum", deltaType: "positive", icon: DollarSign, description: "Since inception" },
-      { title: "Jobs Created", value: formatIndianNumber(cachedStats?.totalEmployees ?? totalJobs), delta: "Sum", deltaType: "positive", icon: Users, description: "Confirmed headcount" },
-      { title: "New Startups Added", value: formatIndianNumber(newStartups), delta: "This Month", deltaType: "positive", icon: Target, description: "Time-filtered" }
+      { 
+        title: "Total Startups Tracked", 
+        value: formatIndianNumber((cachedStats?.totalStartups && cachedStats.totalStartups > 0) ? cachedStats.totalStartups : startups.length), 
+        delta: "Database", 
+        deltaType: "positive", 
+        icon: Building2, 
+        description: "All registered startups" 
+      },
+      { 
+        title: "Active Startups", 
+        value: formatIndianNumber(startups.length), 
+        delta: "Live", 
+        deltaType: "positive", 
+        icon: Activity, 
+        description: "Currently operational" 
+      },
+      { 
+        title: "Total Funding Raised", 
+        value: formatIndianCurrency((cachedStats?.totalFunding && cachedStats.totalFunding > 0) ? cachedStats.totalFunding : totalFunding), 
+        delta: "Sum", 
+        deltaType: "positive", 
+        icon: DollarSign, 
+        description: "Since inception" 
+      },
+      { 
+        title: "Jobs Created", 
+        value: formatIndianNumber((cachedStats?.totalEmployees && cachedStats.totalEmployees > 0) ? cachedStats.totalEmployees : totalJobs), 
+        delta: "Sum", 
+        deltaType: "positive", 
+        icon: Users, 
+        description: "Confirmed headcount" 
+      },
+      { 
+        title: "New Startups Added", 
+        value: formatIndianNumber(newStartups), 
+        delta: "This Month", 
+        deltaType: "positive", 
+        icon: Target, 
+        description: "Time-filtered" 
+      }
     ];
 
     const topSectors = Object.entries(sectorMap)
