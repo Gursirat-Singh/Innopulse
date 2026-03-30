@@ -24,7 +24,9 @@ export default function CaptchaComponent({ onCaptchaChange, error }: CaptchaComp
     try {
       const response = await fetch("/api/auth/captcha")
       if (!response.ok) {
-        throw new Error("Failed to fetch CAPTCHA")
+        // Detailed error reporting for production debugging
+        const errorText = await response.text().catch(() => "Unknown error")
+        throw new Error(`Server returned ${response.status}: ${errorText}`)
       }
       const data = await response.json()
       setCaptchaId(data.captchaId)
@@ -33,7 +35,14 @@ export default function CaptchaComponent({ onCaptchaChange, error }: CaptchaComp
       onCaptchaChange(data.captchaId, "")
     } catch (err) {
       // Set an internal error state instead of console.error to avoid the Next.js dev error overlay
-      setFetchError("Could not connect to the authentication server. Please ensure the backend is running.")
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      console.error("CAPTCHA error:", errorMessage)
+      
+      if (errorMessage.includes("Server returned 500")) {
+        setFetchError("Server configuration error (500). Please check your environment variables.")
+      } else {
+        setFetchError(`Could not connect to the authentication server: ${errorMessage}`)
+      }
     } finally {
       setIsLoading(false)
     }
