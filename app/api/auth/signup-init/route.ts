@@ -45,9 +45,9 @@ export async function POST(req: NextRequest) {
 
     console.log("🔍 Signup initiation request for:", email);
 
-    // Check if user already exists in main collection
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    // Only block signup if a VERIFIED user already exists
+    const existingVerifiedUser = await User.findOne({ email, isEmailVerified: true });
+    if (existingVerifiedUser) {
       return NextResponse.json(
         { message: "An account with this email already exists" },
         { status: 400 }

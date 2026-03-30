@@ -61,13 +61,23 @@ export async function POST(req: NextRequest) {
 
     console.log("✅ OTP verification successful");
 
-    // Complete account creation
-    const newUser = await User.create({
-      email: targetPendingUser.email,
-      password: targetPendingUser.password, // Already hashed in PendingUser
-      isEmailVerified: true,
-      isOtpVerified: true,
-    });
+    // Complete account creation — use upsert to handle legacy unverified users
+    // If an old unverified user record exists from before the PendingUser migration,
+    // update it instead of creating a duplicate (which would cause E11000 duplicate key error)
+    const newUser = await User.findOneAndUpdate(
+      { email: targetPendingUser.email },
+      {
+        $set: {
+          email: targetPendingUser.email,
+          password: targetPendingUser.password, // Already hashed in PendingUser
+          isEmailVerified: true,
+          isOtpVerified: true,
+          otp: undefined,
+          otpExpiry: undefined,
+        },
+      },
+      { upsert: true, new: true }
+    );
 
     // Delete the pending user record now that it is successfully moved to User
     await PendingUser.deleteOne({ _id: targetPendingUser._id });
