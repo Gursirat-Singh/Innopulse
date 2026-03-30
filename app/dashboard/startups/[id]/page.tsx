@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { formatIndianCurrency, formatIndianNumber } from "@/lib/utils"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
 import {
   Building2,
   MapPin,
@@ -136,6 +138,7 @@ export default function StartupDetailsPage() {
   const router = useRouter()
   const [startup, setStartup] = useState<Startup | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
   const [isAdmin] = useState(true) // Mock admin status
   const [isPdfMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -153,18 +156,69 @@ export default function StartupDetailsPage() {
 
   const startupId = params.id as string
 
-  // Export to PDF function
-  const exportToPDF = () => {
-  if (!startupId) {
-    alert("Unable to export PDF: Startup ID missing in route");
-    return;
-  }
+  // Export to PDF function (Client-side)
+  const exportToPDF = async () => {
+    if (!startup) {
+      alert("Unable to export PDF: Startup data not loaded");
+      return;
+    }
 
-  window.open(
-    `/api/export/startup/${encodeURIComponent(startupId)}`,
-    "_blank"
-  );
-};
+    try {
+      setIsGeneratingPdf(true);
+      
+      // Select the main content to capture
+      const content = document.getElementById('startup-profile-content');
+      if (!content) {
+        throw new Error("Content element not found");
+      }
+
+      // Pre-capture styling for better PDF results
+      const originalStyle = content.style.cssText;
+      content.style.maxWidth = '1200px';
+      content.style.margin = '0 auto';
+      content.style.backgroundColor = '#ffffff';
+      content.style.padding = '20px';
+
+      // Capture canvas
+      const canvas = await html2canvas(content, {
+        scale: 2, // Higher quality
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        onclone: (doc) => {
+          // Hide elements that shouldn't be in the PDF
+          const elementsToHide = doc.querySelectorAll('.pdf-hidden');
+          elementsToHide.forEach(el => (el as HTMLElement).style.display = 'none');
+        }
+      });
+
+      // Restore original styling
+      content.style.cssText = originalStyle;
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: 'a4',
+      });
+
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      // Add image to PDF
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      
+      // Save the PDF
+      pdf.save(`Innopulse_Report_${startup.name.replace(/\s+/g, '_')}.pdf`);
+
+    } catch (err) {
+      console.error("PDF Generation failed:", err);
+      alert("Failed to generate PDF. Please try again.");
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
 
   // Generate mock growth data based on startup stage and current metrics
   const generateGrowthData = (startup: Startup) => {
@@ -404,16 +458,35 @@ export default function StartupDetailsPage() {
                   </p>
                 </div>
               </div>
-              <Badge className={`${getStageColor(startup.stage)} border text-base px-4 py-2 font-medium`}>
-                {startup.stage}
-              </Badge>
+              <div className="flex items-center gap-3">
+                <Badge className={`${getStageColor(startup.stage)} border text-base px-4 py-2 font-medium`}>
+                  {startup.stage}
+                </Badge>
+                <Button 
+                  onClick={exportToPDF} 
+                  disabled={isGeneratingPdf}
+                  className="bg-primary/90 hover:bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-300"
+                >
+                  {isGeneratingPdf ? (
+                    <>
+                      <Clock className="w-4 h-4 mr-2 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Export PDF
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
         </motion.div>
       )}
 
       {/* Main Content */}
-      <div className={`container mx-auto px-4 ${isPdfMode ? 'py-4 max-w-4xl print-content' : 'py-8'}`}>
+      <div id="startup-profile-content" className={`container mx-auto px-4 ${isPdfMode ? 'py-4 max-w-4xl print-content' : 'py-8'}`}>
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
           {/* Main Content Column */}
           <motion.div
