@@ -22,7 +22,7 @@ export default function CaptchaComponent({ onCaptchaChange, error }: CaptchaComp
     setIsLoading(true)
     setFetchError("")
     try {
-      const response = await fetch("http://localhost:5000/api/auth/captcha")
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/captcha`)
       if (!response.ok) {
         throw new Error("Failed to fetch CAPTCHA")
       }
