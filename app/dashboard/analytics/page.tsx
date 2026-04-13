@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { motion } from "framer-motion"
-import html2canvas from "html2canvas"
-import jsPDF from "jspdf"
 import {
   Building2, DollarSign, Users, TrendingUp, Target,
   ArrowUpRight, ArrowDownRight, MapPin, BarChart3,
@@ -306,54 +304,29 @@ export default function AnalyticsPage() {
   const exportToPDF = async () => {
     try {
       setIsExporting(true)
+      const token = localStorage.getItem('token')
 
-      // Wait for state update and re-render of hidden chart structure
-      await new Promise(resolve => setTimeout(resolve, 500))
-
-      const element = document.querySelector('.pdf-export-container') as HTMLElement
-      if (!element) {
-        throw new Error('Analytics print layout not found')
-      }
-
-      // Configure html2canvas options to avoid color parsing issues
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: '#ffffff',
-        logging: false,
-        width: element.scrollWidth,
-        height: element.scrollHeight,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
+      const response = await fetch('/api/export/analytics', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       })
 
-      // Create PDF
-      const imgData = canvas.toDataURL('image/png')
-      const pdf = new jsPDF('p', 'mm', 'a4')
-
-      const imgWidth = 210 // A4 width in mm
-      const pageHeight = 295 // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
-      let heightLeft = imgHeight
-
-      let position = 0
-
-      // Add first page
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
-      heightLeft -= pageHeight
-
-      // Add additional pages if content is longer than one page
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight
-        pdf.addPage()
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
-        heightLeft -= pageHeight
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF')
       }
 
-      // Save the PDF
-      pdf.save('innopulse-analytics.pdf')
-
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      const filename = `innopulse-analytics-${new Date().toISOString().split('T')[0]}.pdf`
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      a.remove()
     } catch (error) {
       console.error('PDF export failed:', error)
       alert('Failed to export PDF. Please try again.')
@@ -915,94 +888,6 @@ export default function AnalyticsPage() {
       </div>
     </div>
 
-    {/* PDF EXPORT TEMPLATE - HIDDEN FROM LIVE VIEW */}
-    <div 
-      className={`pdf-export-container fixed top-[20000px] left-0 bg-white text-black ${isExporting ? 'block' : 'hidden'}`}
-      style={{ width: '210mm', minHeight: '297mm', padding: '20mm', zIndex: -50 }}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between border-b pb-4 mb-8 border-gray-200">
-        <div className="flex items-center gap-3">
-          <Logo size="lg" showText={false} />
-          <div>
-            <h1 className="text-3xl font-bold flex bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent tracking-tight">InnoPulse</h1>
-            <p className="text-sm font-medium text-gray-500 tracking-wide mt-1">Ecosystem Intelligence</p>
-          </div>
-        </div>
-        <div className="text-right">
-          <p className="text-sm font-extrabold text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded inline-block">Executive Report</p>
-          <p className="text-xs text-gray-400 mt-2 font-medium">{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-        </div>
-      </div>
-
-      {/* KPIs Grid */}
-      <div className="grid grid-cols-3 gap-6 mb-12">
-        {kpiData.map((kpi) => (
-          <div key={kpi.title} className="p-5 border border-gray-200 rounded-2xl bg-gray-50/50">
-            <div className="flex items-center gap-2 mb-2">
-              <kpi.icon className="w-4 h-4 text-blue-600" />
-              <div className="text-sm text-gray-500 font-bold uppercase tracking-wide">{kpi.title}</div>
-            </div>
-            <div className="text-3xl font-black text-gray-900 my-2">{kpi.value}</div>
-            <div className="flex items-center gap-2">
-              <span className={`text-xs font-bold px-2 py-0.5 rounded ${kpi.changeType === 'positive' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                {kpi.change}
-              </span>
-              <span className="text-xs text-gray-400 font-medium">{kpi.description}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Explicitly Sized Recharts */}
-      <div className="mb-12">
-        <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-           <Zap className="w-5 h-5 text-gray-400" /> Capital Growth Trajectory
-        </h2>
-        <div style={{ width: '100%', height: '280px' }} className="border border-gray-200 rounded-2xl p-6 bg-white shadow-sm">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={growthTrendData}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
-              <XAxis dataKey="month" stroke="#9CA3AF" fontSize={11} tickLine={false} axisLine={false} dy={10} />
-              <YAxis stroke="#9CA3AF" fontSize={11} tickLine={false} axisLine={false} dx={-10} tickFormatter={(value) => `${formatIndianCurrency(value)}`} />
-              <Area type="monotone" dataKey="funding" stroke="#3B82F6" strokeWidth={3} fill="#EFF6FF" isAnimationActive={false} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      <div className="mb-12">
-        <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-           <Target className="w-5 h-5 text-gray-400" /> Registration Volume
-        </h2>
-        <div style={{ width: '100%', height: '280px' }} className="border border-gray-200 rounded-2xl p-6 bg-white shadow-sm">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={growthTrendData}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F3F4F6" />
-              <XAxis dataKey="month" stroke="#9CA3AF" fontSize={11} tickLine={false} axisLine={false} dy={10} />
-              <YAxis stroke="#9CA3AF" fontSize={11} tickLine={false} axisLine={false} dx={-10} tickFormatter={(value) => `${formatIndianNumber(value)}`} />
-              <Area type="monotone" dataKey="startups" stroke="#8B5CF6" strokeWidth={3} fill="#F5F3FF" isAnimationActive={false} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      <div className="pt-8 mt-12 border-t-2 border-dashed border-gray-200" style={{ pageBreakBefore: 'always' }}>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 tracking-tight">Executive Summary & Insights</h2>
-        <div className="space-y-4">
-            {insightsData.map((insight, idx) => (
-              <div key={idx} className="p-5 bg-gray-50 border border-gray-200 rounded-xl flex items-start gap-4">
-                <div className={`w-3 h-3 rounded-full mt-1.5 flex-shrink-0 ${
-                  insight.trend === 'up' ? 'bg-green-500' :
-                  insight.trend === 'down' ? 'bg-red-500' : 'bg-blue-500'
-                }`} />
-                <p className="text-base text-gray-800 leading-relaxed font-medium">{insight.description}</p>
-              </div>
-            ))}
-        </div>
-      </div>
-
-    </div>
     </>
   )
 }

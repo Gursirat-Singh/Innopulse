@@ -5,8 +5,6 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { formatIndianCurrency, formatIndianNumber } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
-import html2canvas from 'html2canvas'
-import jsPDF from 'jspdf'
 import {
   Building2,
   MapPin,
@@ -141,12 +139,7 @@ export default function StartupDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
   const [isAdmin] = useState(true) // Mock admin status
-  const [isPdfMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return new URLSearchParams(window.location.search).get('pdf') === 'true'
-    }
-    return false
-  })
+  const isPdfMode = false;
 
   // Generate report date for cover page
   const reportDate = new Date().toLocaleDateString('en-IN', {
@@ -157,7 +150,7 @@ export default function StartupDetailsPage() {
 
   const startupId = params.id as string
 
-  // Export to PDF function (Client-side)
+  // Export to PDF function (Server-side via Puppeteer)
   const exportToPDF = async () => {
     if (!startup) {
       alert("Unable to export PDF: Startup data not loaded");
@@ -166,53 +159,28 @@ export default function StartupDetailsPage() {
 
     try {
       setIsGeneratingPdf(true);
+      const token = localStorage.getItem('token');
       
-      // Select the main content to capture
-      const content = document.getElementById('startup-profile-content');
-      if (!content) {
-        throw new Error("Content element not found");
-      }
-
-      // Pre-capture styling for better PDF results
-      const originalStyle = content.style.cssText;
-      content.style.maxWidth = '1200px';
-      content.style.margin = '0 auto';
-      content.style.backgroundColor = '#ffffff';
-      content.style.padding = '20px';
-
-      // Capture canvas
-      const canvas = await html2canvas(content, {
-        scale: 2, // Higher quality
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        onclone: (doc) => {
-          // Hide elements that shouldn't be in the PDF
-          const elementsToHide = doc.querySelectorAll('.pdf-hidden');
-          elementsToHide.forEach(el => (el as HTMLElement).style.display = 'none');
+      const response = await fetch(`/api/export/startup/${startup._id}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
         }
       });
 
-      // Restore original styling
-      content.style.cssText = originalStyle;
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
 
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'px',
-        format: 'a4',
-      });
-
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-      // Add image to PDF
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      
-      // Save the PDF
-      pdf.save(`Innopulse_Report_${startup.name.replace(/\s+/g, '_')}.pdf`);
-
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `startup-${startup.name.replace(/\\s+/g, '_')}-report.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
     } catch (err) {
       console.error("PDF Generation failed:", err);
       alert("Failed to generate PDF. Please try again.");
@@ -278,23 +246,12 @@ export default function StartupDetailsPage() {
       try {
         setLoading(true)
 
-        // In PDF mode, fetch directly from API without authentication
-        if (isPdfMode) {
-          const response = await fetch(`/api/startups/${startupId}`)
-          if (response.ok) {
-            const data = await response.json()
-            setStartup(data)
-          } else {
-            setStartup(null)
-          }
+        // Normal mode with authentication
+        const data = await getStartupById(startupId)
+        if (data) {
+          setStartup(data)
         } else {
-          // Normal mode with authentication
-          const data = await getStartupById(startupId)
-          if (data) {
-            setStartup(data)
-          } else {
-            setStartup(null)
-          }
+          setStartup(null)
         }
       } catch (error) {
         console.error("Failed to load startup details:", error)
@@ -309,7 +266,7 @@ export default function StartupDetailsPage() {
     } else {
       setLoading(false)
     }
-  }, [startupId, isPdfMode])
+  }, [startupId])
 
   if (loading) {
     return (
@@ -1081,17 +1038,7 @@ export default function StartupDetailsPage() {
                 </CardContent>
               </Card>
 
-              {/* Export PDF Button */}
-              <div className="pt-2">
-                <Button
-                  onClick={exportToPDF}
-                  className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium"
-                  size="sm"
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Export Analytics as PDF
-                </Button>
-              </div>
+
             </motion.div>
           )}
         </div>

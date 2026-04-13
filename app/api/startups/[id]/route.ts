@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'
 import connectDB from '@/lib/mongodb'
+import mongoose from 'mongoose'
 import Startup from '@/server/models/startup'
-import User from '@/lib/models/User'
+import User from '@/server/models/User' // Explicitly load to prevent OverwriteModelError in Serverless
 import { refreshCachedStats } from '@/lib/refreshStats'
 import { rateLimit, getIP } from '@/lib/rateLimiter'
 
@@ -16,6 +17,13 @@ export async function GET(
     if (!id || id === 'undefined' || id === 'null') {
       return NextResponse.json(
         { error: "Startup ID is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { error: "Invalid Startup ID" },
         { status: 400 }
       );
     }
@@ -60,6 +68,13 @@ export async function PATCH(
     if (!id || id === 'undefined' || id === 'null') {
       return NextResponse.json(
         { error: "Startup ID is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { error: "Invalid Startup ID" },
         { status: 400 }
       );
     }
@@ -248,6 +263,13 @@ export async function DELETE(
     if (!id || id === 'undefined' || id === 'null') {
       return NextResponse.json(
         { error: "Startup ID is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { error: "Invalid Startup ID" },
         { status: 400 }
       );
     }
