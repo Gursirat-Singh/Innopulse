@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import puppeteer from 'puppeteer'
+import puppeteer from 'puppeteer-core'
+import chromium from '@sparticuz/chromium'
 import jwt from 'jsonwebtoken'
 import connectDB from '@/lib/mongodb'
 import Startup from '@/server/models/startup'
@@ -301,15 +302,30 @@ export async function GET(
     </html>
     `
 
-    // 4. Launch Puppeteer
+    // 4. Launch Puppeteer (dual-mode: local Chrome for dev, @sparticuz/chromium for prod)
+    const isDev = process.env.NODE_ENV === 'development'
+    
     browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: isDev
+        ? ['--no-sandbox', '--disable-setuid-sandbox']
+        : [
+            ...chromium.args,
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--single-process',
+          ],
+      executablePath: isDev
+        ? (process.env.CHROME_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe')
+        : await chromium.executablePath(),
+      headless: isDev ? true : ('shell' as const),
     })
 
     const page = await browser.newPage()
     
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' })
+    await page.setContent(htmlContent, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await new Promise(resolve => setTimeout(resolve, 2000))
 
     const pdfBuffer = await page.pdf({
       format: 'A4',

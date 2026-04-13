@@ -169,7 +169,9 @@ export default function StartupDetailsPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate PDF');
+        const errData = await response.json().catch(() => ({}));
+        console.error('Server PDF error:', errData);
+        throw new Error(errData?.details || errData?.error || 'Failed to generate PDF');
       }
 
       const blob = await response.blob();
