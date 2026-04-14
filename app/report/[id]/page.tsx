@@ -142,7 +142,7 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
             <div>
               <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Account Status</p>
               <div className="flex items-center gap-2 mt-1">
-                <div className={\`w-2 h-2 rounded-full \${startup.status === 'approved' ? 'bg-green-500' : startup.status === 'pending' ? 'bg-amber-500' : 'bg-red-500'}\`}></div>
+                <div className={`w-2 h-2 rounded-full ${startup.status === 'approved' ? 'bg-green-500' : startup.status === 'pending' ? 'bg-amber-500' : 'bg-red-500'}`}></div>
                 <span className="font-semibold capitalize text-slate-900">{startup.status}</span>
               </div>
             </div>
