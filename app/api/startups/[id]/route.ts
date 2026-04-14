@@ -30,6 +30,11 @@ export async function GET(
 
     await connectDB()
 
+    // Prevent Webpack from tree-shaking the User model in production
+    if (!User) {
+      console.warn("User model failed to load");
+    }
+
     // Get single startup by ID
     const startup = await Startup.findById(id)
       .populate('createdBy', 'name email')
