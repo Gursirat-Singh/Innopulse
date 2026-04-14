@@ -161,7 +161,7 @@ export default function StartupDetailsPage() {
       setIsGeneratingPdf(true);
       const token = localStorage.getItem('token');
       
-      const response = await fetch(`/api/export/startup/${startup._id}`, {
+      const response = await fetch(`https://innopulse.onrender.com/api/generate-pdf/${startup._id}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`
