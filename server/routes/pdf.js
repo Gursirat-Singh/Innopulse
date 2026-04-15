@@ -23,9 +23,10 @@ router.get('/generate-pdf/:startupId', async (req, res) => {
     });
 
     const page = await browser.newPage();
+    await page.setViewport({ width: 1200, height: 1600, deviceScaleFactor: 1 });
     const url = `https://innopulse-puce.vercel.app/report/${startupId}`;
 
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.goto(url, { waitUntil: 'networkidle0', timeout: 90000 });
     
     // Wait 2 seconds for JS rendering
     await new Promise(resolve => setTimeout(resolve, 2000));
