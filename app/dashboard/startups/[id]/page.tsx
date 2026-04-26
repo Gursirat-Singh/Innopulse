@@ -163,7 +163,11 @@ export default function StartupDetailsPage() {
       setIsGeneratingPdf(true);
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`/api/export/startup/${startup._id}`, {
+      const pdfServerUrl = process.env.NEXT_PUBLIC_PDF_SERVER_URL 
+        ? `${process.env.NEXT_PUBLIC_PDF_SERVER_URL}/api/generate-pdf/${startup._id}`
+        : `/api/export/startup/${startup._id}`;
+
+      const response = await fetch(pdfServerUrl, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`
