@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 
+export const dynamic = 'force-dynamic';
+
+
 function generateCaptchaSVG(text: string) {
   const width = 200;
   const height = 60;

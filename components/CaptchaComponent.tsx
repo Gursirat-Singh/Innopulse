@@ -22,7 +22,7 @@ export default function CaptchaComponent({ onCaptchaChange, error }: CaptchaComp
     setIsLoading(true)
     setFetchError("")
     try {
-      const response = await fetch("/api/auth/captcha")
+      const response = await fetch(`/api/auth/captcha?_t=${Date.now()}`)
       if (!response.ok) {
         // Detailed error reporting for production debugging
         const errorText = await response.text().catch(() => "Unknown error")

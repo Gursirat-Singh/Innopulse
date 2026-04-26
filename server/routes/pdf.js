@@ -24,12 +24,16 @@ router.get('/generate-pdf/:startupId', async (req, res) => {
 
     const page = await browser.newPage();
     await page.setViewport({ width: 1200, height: 1600, deviceScaleFactor: 1 });
-    const url = `https://innopulse-puce.vercel.app/report/${startupId}`;
+    await page.setExtraHTTPHeaders({
+      'x-pdf-mode': 'true'
+    });
+    const baseUrl = process.env.CLIENT_URL || 'https://innopulse-puce.vercel.app';
+    const url = `${baseUrl}/dashboard/startups/${startupId}?pdf=true`;
 
     await page.goto(url, { waitUntil: 'networkidle0', timeout: 90000 });
     
-    // Wait 2 seconds for JS rendering
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Wait 3 seconds for Recharts to finish rendering all charts
+    await page.waitForTimeout(3000);
 
     const pdfBuffer = await page.pdf({
       format: 'A4',

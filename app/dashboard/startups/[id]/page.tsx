@@ -2,7 +2,7 @@
 // Client-side PDF generation fix v2
 
 import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { formatIndianCurrency, formatIndianNumber } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import {
@@ -139,7 +139,8 @@ export default function StartupDetailsPage() {
   const [loading, setLoading] = useState(true)
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
   const [isAdmin] = useState(true) // Mock admin status
-  const isPdfMode = false;
+  const searchParams = useSearchParams()
+  const isPdfMode = searchParams.get('pdf') === 'true'
 
   // Generate report date for cover page
   const reportDate = new Date().toLocaleDateString('en-IN', {
@@ -150,7 +151,8 @@ export default function StartupDetailsPage() {
 
   const startupId = params.id as string
 
-  // Export to PDF function (Server-side via Puppeteer)
+  // Export to PDF function — uses the Next.js API route that builds HTML inline
+  // (no page navigation, so no 404 issues)
   const exportToPDF = async () => {
     if (!startup) {
       alert("Unable to export PDF: Startup data not loaded");
@@ -160,8 +162,8 @@ export default function StartupDetailsPage() {
     try {
       setIsGeneratingPdf(true);
       const token = localStorage.getItem('token');
-      
-      const response = await fetch(`https://innopulse.onrender.com/api/generate-pdf/${startup._id}`, {
+
+      const response = await fetch(`/api/export/startup/${startup._id}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`
@@ -178,7 +180,7 @@ export default function StartupDetailsPage() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `startup-${startup.name.replace(/\\s+/g, '_')}-report.pdf`;
+      a.download = `startup-${startup.name.replace(/\s+/g, '_')}-report.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
