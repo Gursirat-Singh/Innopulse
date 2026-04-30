@@ -28,7 +28,7 @@ router.get('/generate-pdf/:startupId', async (req, res) => {
       'x-pdf-mode': 'true'
     });
     const baseUrl = process.env.CLIENT_URL || 'https://innopulse-puce.vercel.app';
-    const url = `${baseUrl}/dashboard/startups/${startupId}?pdf=true`;
+    const url = `${baseUrl}/report/${startupId}`;
 
     await page.goto(url, { waitUntil: 'networkidle0', timeout: 90000 });
 
