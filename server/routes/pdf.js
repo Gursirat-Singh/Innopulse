@@ -31,9 +31,9 @@ router.get('/generate-pdf/:startupId', async (req, res) => {
     const url = `${baseUrl}/dashboard/startups/${startupId}?pdf=true`;
 
     await page.goto(url, { waitUntil: 'networkidle0', timeout: 90000 });
-    
+
     // Wait 3 seconds for Recharts to finish rendering all charts
-    await page.waitForTimeout(3000);
+    await new Promise(resolve => setTimeout(resolve, 6000));
 
     const pdfBuffer = await page.pdf({
       format: 'A4',
