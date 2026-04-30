@@ -4,46 +4,43 @@ import chromium from '@sparticuz/chromium';
 
 const router = express.Router();
 
+const isProduction = process.env.NODE_ENV === 'production';
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('isProduction:', isProduction);
 router.get('/generate-pdf/:startupId', async (req, res) => {
   let browser = null;
   try {
     const { startupId } = req.params;
 
     browser = await puppeteer.launch({
-      args: [
+      args: isProduction ? [
         ...chromium.args,
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
         '--single-process',
-      ],
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless
+      ] : [],
+      executablePath: isProduction
+        ? await chromium.executablePath()
+        : 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+      headless: true
     });
 
     const page = await browser.newPage();
     await page.setViewport({ width: 1200, height: 1600, deviceScaleFactor: 1 });
-    await page.setExtraHTTPHeaders({
-      'x-pdf-mode': 'true'
-    });
+    await page.setExtraHTTPHeaders({ 'x-pdf-mode': 'true' });
+
     const baseUrl = process.env.CLIENT_URL || 'https://innopulse-puce.vercel.app';
     const url = `${baseUrl}/report/${startupId}`;
 
     await page.goto(url, { waitUntil: 'networkidle0', timeout: 90000 });
-
-    // Wait 3 seconds for Recharts to finish rendering all charts
     await new Promise(resolve => setTimeout(resolve, 6000));
 
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
-      margin: {
-        top: '15mm',
-        right: '15mm',
-        bottom: '15mm',
-        left: '15mm'
-      }
+      margin: { top: '15mm', right: '15mm', bottom: '15mm', left: '15mm' }
     });
 
     await browser.close();
@@ -54,9 +51,7 @@ router.get('/generate-pdf/:startupId', async (req, res) => {
     res.send(Buffer.from(pdfBuffer));
 
   } catch (err) {
-    if (browser) {
-      await browser.close();
-    }
+    if (browser) await browser.close();
     console.error(err.message);
     res.status(500).json({ error: err.message });
   }

@@ -22,6 +22,7 @@ dist/
 server/.env
 server/.env.local
 server/.env.production
+server/seed
 
 # Database
 *.db
