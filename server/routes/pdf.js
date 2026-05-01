@@ -34,8 +34,10 @@ router.get('/generate-pdf/:startupId', async (req, res) => {
     const baseUrl = process.env.CLIENT_URL || 'https://innopulse-puce.vercel.app';
     const url = `${baseUrl}/report/${startupId}`;
 
-    await page.goto(url, { waitUntil: 'networkidle0', timeout: 90000 });
-    await new Promise(resolve => setTimeout(resolve, 6000));
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.waitForSelector('#report-ready', { timeout: 30000 }).catch(() => console.log('report-ready selector timed out'));
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
     const pdfBuffer = await page.pdf({
       format: 'A4',

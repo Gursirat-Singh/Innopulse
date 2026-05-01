@@ -30,8 +30,8 @@ const PORT = process.env.PORT || 4000;
 
 app.options('*', cors());
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
-app.listen(4000, () => {
-  console.log("Server running on port 4000");
+app.listen(PORT, () => {
+  console.log("Server running on port PORT");
 }).on('error', (err) => {
   console.error('Listen error:', err);
 });

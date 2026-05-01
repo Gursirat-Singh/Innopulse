@@ -6,6 +6,9 @@ import User from '@/server/models/User'; // Prevent tree-shaking
 import Logo from '@/components/logo';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Users, Banknote, Globe, Mail, Phone, CalendarRange } from 'lucide-react';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'] });
 
 const formatIndianCurrency = (amount: number) => {
   if (amount >= 10000000) {
@@ -48,7 +51,14 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
   });
 
   return (
-    <div className="bg-white min-h-screen text-slate-900">
+    <div 
+      className={`bg-white min-h-screen text-slate-900 ${inter.className}`}
+      style={{ 
+        fontFamily: 'Inter, sans-serif',
+        WebkitPrintColorAdjust: 'exact',
+        printColorAdjust: 'exact'
+      }}
+    >
       <style dangerouslySetInnerHTML={{
         __html: `
         @media print {
@@ -192,6 +202,7 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
         </footer>
 
       </main>
+      <div id="report-ready" style={{ display: 'none' }} />
     </div>
   );
 }
