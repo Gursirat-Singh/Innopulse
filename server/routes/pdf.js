@@ -32,7 +32,17 @@ router.get('/generate-pdf/:startupId', async (req, res) => {
     await page.setExtraHTTPHeaders({ 'x-pdf-mode': 'true' });
 
     const baseUrl = process.env.CLIENT_URL || 'https://innopulse-puce.vercel.app';
-    const url = `${baseUrl}/report/${startupId}`;
+    const url = `${baseUrl}/dashboard/startups/${startupId}?pdf=true`;
+
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (token) {
+      await page.setCookie({
+        name: 'token',
+        value: token,
+        domain: new URL(baseUrl).hostname,
+        path: '/',
+      });
+    }
 
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });

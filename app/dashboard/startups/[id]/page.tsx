@@ -587,6 +587,7 @@ export default function StartupDetailsPage() {
                             labelStyle={{ color: isPdfMode ? '#111827' : 'hsl(var(--popover-foreground))' }}
                           />
                           <Line
+                            isAnimationActive={false}
                             type="monotone"
                             dataKey="revenue"
                             stroke={isPdfMode ? "#059669" : "#3b82f6"}
@@ -641,6 +642,7 @@ export default function StartupDetailsPage() {
                             labelStyle={{ color: isPdfMode ? '#111827' : 'hsl(var(--popover-foreground))' }}
                           />
                           <Area
+                            isAnimationActive={false}
                             type="monotone"
                             dataKey="users"
                             stackId="1"
@@ -650,6 +652,7 @@ export default function StartupDetailsPage() {
                             strokeWidth={isPdfMode ? 2 : 3}
                           />
                           <Area
+                            isAnimationActive={false}
                             type="monotone"
                             dataKey="newUsers"
                             stackId="2"
@@ -704,11 +707,13 @@ export default function StartupDetailsPage() {
                             labelStyle={{ color: isPdfMode ? '#111827' : 'hsl(var(--popover-foreground))' }}
                           />
                           <Bar
+                            isAnimationActive={false}
                             dataKey="employees"
                             fill={isPdfMode ? "#7c3aed" : "#3b82f6"}
                             radius={[4, 4, 0, 0]}
                           />
                           <Bar
+                            isAnimationActive={false}
                             dataKey="hiring"
                             fill={isPdfMode ? "#a78bfa" : "#60a5fa"}
                             radius={[4, 4, 0, 0]}
@@ -767,12 +772,14 @@ export default function StartupDetailsPage() {
                             labelStyle={{ color: isPdfMode ? '#111827' : 'hsl(var(--popover-foreground))' }}
                           />
                           <Bar
+                            isAnimationActive={false}
                             yAxisId="amount"
                             dataKey="amount"
                             fill={isPdfMode ? "#ea580c" : "#3b82f6"}
                             radius={[4, 4, 0, 0]}
                           />
                           <Line
+                            isAnimationActive={false}
                             yAxisId="investors"
                             type="monotone"
                             dataKey="investors"
@@ -1051,6 +1058,9 @@ export default function StartupDetailsPage() {
           )}
         </div>
       </div>
+      {isPdfMode && startup && (
+        <div id="report-ready" style={{ display: 'none' }} />
+      )}
     </div>
   )
 }
