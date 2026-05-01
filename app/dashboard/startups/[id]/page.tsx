@@ -329,7 +329,7 @@ export default function StartupDetailsPage() {
     <div className={`min-h-screen ${isPdfMode ? 'bg-white text-black print-mode' : 'bg-gradient-to-br from-background via-background to-muted/20'}`}>
       {/* Cover Page - Only shown in PDF mode */}
       {isPdfMode && (
-        <div className="page-break-after print-page-cover min-h-screen flex flex-col justify-center px-12 py-16 relative bg-white">
+        <div className={`page-break-after print-page-cover ${isPdfMode ? 'h-[1050px]' : 'min-h-screen'} flex flex-col justify-center px-12 py-16 relative bg-white`}>
           {/* Professional Document Accent Line */}
           <div className="absolute top-0 left-0 w-full h-3 bg-blue-600" />
           
@@ -453,7 +453,7 @@ export default function StartupDetailsPage() {
 
       {/* Main Content */}
       <div id="startup-profile-content" className={`container mx-auto px-4 ${isPdfMode ? 'py-4 max-w-4xl print-content' : 'py-8'}`}>
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+        <div className={isPdfMode ? "grid grid-cols-1 gap-8" : "grid grid-cols-1 xl:grid-cols-4 gap-8"}>
           {/* Main Content Column */}
           <motion.div
             initial={isPdfMode ? false : { opacity: 0, x: -20 }}
@@ -534,7 +534,7 @@ export default function StartupDetailsPage() {
           </div>
 
           {/* Growth Analytics Section */}
-          <div className={isPdfMode ? 'page-break-before page-break-inside-avoid section-spacing' : ''}>
+          <div className={isPdfMode ? 'page-break-inside-avoid section-spacing' : ''}>
             <div className="mb-6">
               <h2 className={`text-2xl font-bold flex items-center gap-3 ${isPdfMode ? 'text-gray-900 border-b-2 border-blue-600 pb-2 mb-6' : 'text-foreground'}`}>
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg flex items-center justify-center">
@@ -547,7 +547,7 @@ export default function StartupDetailsPage() {
 
             <Card className={`apple-glass border-0 shadow-xl ${isPdfMode ? 'page-break-inside-avoid bg-white shadow-none rounded-none border-t-2 border-gray-900 pt-6' : ''}`}>
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <div className={isPdfMode ? "grid grid-cols-2 gap-8" : "grid grid-cols-1 xl:grid-cols-2 gap-8"}>
                   {/* Revenue Growth Chart */}
                   <div className={`space-y-4 ${isPdfMode ? 'page-break-inside-avoid' : ''}`}>
                     <h4 className={`text-lg font-semibold flex items-center gap-2 ${isPdfMode ? 'text-gray-900' : 'text-foreground'}`}>

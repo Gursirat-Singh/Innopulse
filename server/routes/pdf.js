@@ -28,7 +28,7 @@ router.get('/generate-pdf/:startupId', async (req, res) => {
     });
 
     const page = await browser.newPage();
-    await page.setViewport({ width: 1200, height: 1600, deviceScaleFactor: 1 });
+    await page.setViewport({ width: 1400, height: 1800, deviceScaleFactor: 1 });
     await page.setExtraHTTPHeaders({ 'x-pdf-mode': 'true' });
 
     const baseUrl = process.env.CLIENT_URL || 'https://innopulse-puce.vercel.app';
